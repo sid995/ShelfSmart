@@ -3,18 +3,18 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
 export async function middleware(request: NextRequest) {
-  const session = request.cookies.get('session')?.value || '';
+  const sessionCookie = request.cookies.get('session');
+  const session = sessionCookie?.value || '';
+
+  const isSignInPage = request.nextUrl.pathname === '/signin';
 
   // Check if the user is accessing the signin page
-  if (request.nextUrl.pathname === '/signin') {
+  if (isSignInPage) {
     if (session) {
       try {
         // If the session is valid, redirect to home
-        const idToken = await auth.verifySessionCookie(session, true);
-        console.log("IDTOKEN: ", idToken)
-        if (!idToken) {
-          return NextResponse.redirect(new URL('/', request.url));
-        }
+        await auth.verifySessionCookie(session, true);
+        return NextResponse.redirect(new URL('/', request.url));
       } catch {
         // If the session is invalid, allow access to signin page
         return NextResponse.next();

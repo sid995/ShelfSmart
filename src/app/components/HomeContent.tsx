@@ -4,8 +4,14 @@ import { signOutUser } from '@/utils/auth';
 import { Container, Typography, Button, Box } from '@mui/material';
 import { useRouter } from 'next/navigation';
 
+type UserProps = {
+  uid: string;
+  name: string;
+  email: string | undefined;
+}
+
 interface HomeContentProps {
-  user: string | null | undefined;
+  user: UserProps | null | undefined;
 }
 
 const HomeContent: React.FC<HomeContentProps> = ({ user }) => {
@@ -27,7 +33,7 @@ const HomeContent: React.FC<HomeContentProps> = ({ user }) => {
           Welcome to SmartShelf
         </Typography>
         <Typography variant="h6" gutterBottom>
-          Logged in as: {user}
+          Logged in as: {user?.name}
         </Typography>
         <Button variant="contained" onClick={handleSignOut} sx={{ mt: 2 }}>
           Sign Out
