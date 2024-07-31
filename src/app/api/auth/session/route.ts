@@ -23,6 +23,11 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE() {
-  cookies().set('session', '', { maxAge: 0, path: '/' });
+  cookies().set('session', '', {
+    maxAge: 0,
+    path: '/items',
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production'
+  });
   return NextResponse.json({ status: 'success' }, { status: 200 });
 }

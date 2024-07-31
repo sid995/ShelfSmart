@@ -14,7 +14,7 @@ export async function middleware(request: NextRequest) {
       try {
         // If the session is valid, redirect to home
         await auth.verifySessionCookie(session, true);
-        return NextResponse.redirect(new URL('/', request.url));
+        return NextResponse.redirect(new URL('/items', request.url));
       } catch {
         // If the session is invalid, allow access to signin page
         return NextResponse.next();

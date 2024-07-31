@@ -11,7 +11,7 @@ const SignInContent: React.FC = () => {
   const handleSignIn = async () => {
     try {
       await signInWithGoogle();
-      router.push('/');
+      router.push('/items');
     } catch (error) {
       console.error('Error signing in:', error);
     }
