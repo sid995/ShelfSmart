@@ -2,27 +2,36 @@ import { auth } from "@/config/firebaseConfig"
 import { GoogleAuthProvider, signInWithPopup, signOut, User } from "firebase/auth"
 
 export const signInWithGoogle = async () => {
-  let user = null
-  let error = null
-
-  const provider = new GoogleAuthProvider()
+  const provider = new GoogleAuthProvider();
   try {
-    const res = await signInWithPopup(auth, provider)
-    console.log(res)
-    user = res.user
-    error = null
+    const result = await signInWithPopup(auth, provider);
+    const idToken = await result.user.getIdToken();
+
+    // Send the ID token to your server
+    const response = await fetch('/api/auth/session', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ idToken }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to create session');
+    }
+
+    return result.user;
   } catch (error) {
     console.error("Error signing in with Google", error);
-    user = null
-    error = error
-  } finally {
-    return { user, error }
+    throw error;
   }
 }
 
 export const signOutUser = async () => {
   try {
-    await signOut(auth);
+    await auth.signOut();
+    // Clear the session cookie
+    await fetch('/api/auth/session', { method: 'DELETE' });
   } catch (error) {
     console.error("Error signing out", error);
     throw error;

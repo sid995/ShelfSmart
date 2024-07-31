@@ -1,9 +1,8 @@
 'use client'
 
-import { signInWithGoogle, signOutUser } from '@/utils/auth';
+import { signOutUser } from '@/utils/auth';
 import { Container, Typography, Button, Box } from '@mui/material';
 import { useRouter } from 'next/navigation';
-import GoogleIcon from "@mui/icons-material/Google";
 
 interface HomeContentProps {
   user: string | null | undefined;
@@ -17,14 +16,9 @@ const HomeContent: React.FC<HomeContentProps> = ({ user }) => {
     router.push('/signin');
   };
 
-  const handleSignIn = async () => {
-    try {
-      await signInWithGoogle();
-      router.refresh(); // Refresh the page to update the user state
-    } catch (error) {
-      console.error('Error signing in:', error);
-    }
-  };
+  if (!user) {
+    return <div>Loading...</div>; // or a loading indicator if appropriate
+  }
 
   return (
     <Container maxWidth="sm">
@@ -32,30 +26,12 @@ const HomeContent: React.FC<HomeContentProps> = ({ user }) => {
         <Typography variant="h4" component="h1" gutterBottom>
           Welcome to SmartShelf
         </Typography>
-        {user ? (
-          <>
-            <Typography variant="h6" gutterBottom>
-              Logged in as: {user}
-            </Typography>
-            <Button variant="contained" onClick={handleSignOut}>
-              Sign Out
-            </Button>
-          </>
-        ) : (
-          <>
-            <Typography variant="body1" gutterBottom>
-              Please sign in to access your inventory.
-            </Typography>
-            <Button
-              variant="contained"
-              startIcon={<GoogleIcon />}
-              onClick={handleSignIn}
-              sx={{ mt: 2 }}
-            >
-              Sign in with Google
-            </Button>
-          </>
-        )}
+        <Typography variant="h6" gutterBottom>
+          Logged in as: {user}
+        </Typography>
+        <Button variant="contained" onClick={handleSignOut} sx={{ mt: 2 }}>
+          Sign Out
+        </Button>
       </Box>
     </Container>
   );
