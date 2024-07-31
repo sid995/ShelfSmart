@@ -1,4 +1,4 @@
-import { auth } from "@/config/firebaseAdminConfig"
+import { adminAuth } from "@/config/firebaseAdminConfig"
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
@@ -13,7 +13,7 @@ export async function middleware(request: NextRequest) {
     if (session) {
       try {
         // If the session is valid, redirect to home
-        await auth.verifySessionCookie(session, true);
+        await adminAuth.verifySessionCookie(session, true);
         return NextResponse.redirect(new URL('/items', request.url));
       } catch {
         // If the session is invalid, allow access to signin page
@@ -32,7 +32,7 @@ export async function middleware(request: NextRequest) {
 
   try {
     // Verify the session
-    await auth.verifySessionCookie(session, true);
+    await adminAuth.verifySessionCookie(session, true);
     // If valid, allow access to the requested page
     return NextResponse.next();
   } catch (error) {

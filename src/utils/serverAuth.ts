@@ -1,4 +1,4 @@
-import { auth } from '@/config/firebaseAdminConfig';
+import { adminAuth } from '@/config/firebaseAdminConfig';
 import { cookies } from 'next/headers';
 
 export async function getServerSession() {
@@ -6,7 +6,7 @@ export async function getServerSession() {
   if (!sessionCookie) return null;
 
   try {
-    const decodedClaims = await auth.verifySessionCookie(sessionCookie, true);
+    const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie, true);
     return {
       user: {
         uid: decodedClaims.uid,

@@ -1,28 +1,48 @@
 import { Box, Typography } from '@mui/material';
-import { redirect } from 'next/navigation';
 import { addItem } from '@/utils/firebaseUtils';
-import AddItemForm from '@/app/ui/Items/create-form';
+import AddItemForm from '@/app/ui/Items/CreateForm';
+import { cookies } from 'next/headers';
+import { adminAuth } from '@/config/firebaseAdminConfig';
 
 export default function CreateItemPage() {
   async function handleAddItem(formData: FormData) {
     'use server'
 
+    const cookieStore = cookies();
+    const token = cookieStore.get('auth_token')?.value;
+
+    let userId: string | undefined;
+
+    if (token) {
+      try {
+        const decodedToken = await adminAuth.verifyIdToken(token);
+        userId = decodedToken.uid;
+      } catch (error) {
+        console.error('Error verifying token:', error);
+        // Proceed without userId if token verification fails
+      }
+    }
+
     const name = formData.get('name') as string;
     const quantity = parseInt(formData.get('quantity') as string);
-    const imageFile = formData.get('image') as File;
+    const imageFile = formData.get('image') as File | null;
 
-    if (!name || !quantity || !imageFile) {
-      throw new Error('Missing required fields');
+    if (!name || !quantity) {
+      return { success: false, error: 'Missing required fields' };
     }
 
     try {
-      await addItem(name, quantity, imageFile);
-      return { success: true };
+      if (imageFile) {
+        const buffer = await imageFile.arrayBuffer();
+        await addItem(name, quantity, Buffer.from(buffer), imageFile.type, userId);
+      } else {
+        await addItem(name, quantity, undefined, undefined, userId);
+      }
+
+      return { success: true, error: undefined };
     } catch (error) {
       console.error('Error adding item:', error);
-      return { error: 'Failed to add item. Please try again.' };
-      // Handle the error appropriately
-      // You might want to return an error message to display to the user
+      return { success: false, error: 'Failed to add item. Please try again.' };
     }
   }
 

@@ -6,11 +6,11 @@ import { useRouter } from "next/navigation"
 import CloudUploadIcon from "@mui/icons-material/CloudUpload"
 
 interface AddItemFormProps {
-  onSubmit: (formData: FormData) => Promise<{ success?: boolean; error?: string }>;
+  onSubmit: (formData: FormData) => Promise<{ success: boolean; error: string | undefined }>;
 }
 
 export default function AddItemForm({ onSubmit }: AddItemFormProps) {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const [imageName, setImageName] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
