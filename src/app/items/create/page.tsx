@@ -19,7 +19,7 @@ export default function CreateItemPage() {
         userId = decodedToken.uid;
       } catch (error) {
         console.error('Error verifying token:', error);
-        // Proceed without userId if token verification fails
+        return { success: false, error: 'Authentication failed' };
       }
     }
 
@@ -27,7 +27,7 @@ export default function CreateItemPage() {
     const quantity = parseInt(formData.get('quantity') as string);
     const imageFile = formData.get('image') as File | null;
 
-    if (!name || !quantity) {
+    if (!name || isNaN(quantity) || !quantity) {
       return { success: false, error: 'Missing required fields' };
     }
 
