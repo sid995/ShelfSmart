@@ -1,5 +1,3 @@
-'use client'
-
 import type { Metadata } from "next";
 // This is the root layout component for your Next.js app.
 // Learn more: https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#root-layout-required
@@ -21,10 +19,10 @@ const fontBody = Space_Mono({
   weight: "400"
 })
 
-// export const metadata: Metadata = {
-//   title: "ShelfSmart",
-//   description: "ShelfSmart is a web app that helps you keep track of your pantry",
-// };
+export const metadata: Metadata = {
+  title: "ShelfSmart",
+  description: "ShelfSmart is a web app that helps you keep track of your pantry",
+};
 
 export default function RootLayout(
   { children }: Readonly<{
