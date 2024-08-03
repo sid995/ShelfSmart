@@ -1,26 +1,32 @@
 'use client';
 
+import { useState } from 'react';
+import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { auth } from '@/config/firebaseConfig';
 import { useRouter } from 'next/navigation';
-// import { signInWithGoogle } from '@/utils/auth';
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
-const SignInContent: React.FC = () => {
+
+export default function SignIn() {
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const handleSignIn = async () => {
+  const signInWithGoogle = async () => {
     try {
-      // await signInWithGoogle();
-      router.push('/items');
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+      router.replace('/dashboard');
     } catch (error) {
-      console.error('Error signing in:', error);
+      setError('Failed to sign in with Google. Please try again.');
+      console.error(error);
     }
   };
 
   return (
     <div className="flex h-screen">
       {/* Left Column - Sign In */}
-      <div className="w-1/2 flex flex-col justify-center items-center bg-background">
+      <div className="w-full sm:w-1/2 flex flex-col justify-center items-center bg-background">
         <Card className="w-[400px] max-w-[90%]">
           <CardHeader>
             <CardTitle className="text-3xl font-bold text-center">Sign in to SmartShelf</CardTitle>
@@ -29,7 +35,7 @@ const SignInContent: React.FC = () => {
             <Button
               variant="default"
               className="w-full py-6 text-lg hover:bg-primary/90 transition-transform hover:scale-105"
-              onClick={handleSignIn}
+              onClick={signInWithGoogle}
             >
               <svg
                 className="mr-2 h-4 w-4"
@@ -48,6 +54,7 @@ const SignInContent: React.FC = () => {
               </svg>
               Sign in with Google
             </Button>
+            {error && <p className="text-red-500 mt-4">{error}</p>}
             <p className="mt-4 text-sm text-center text-muted-foreground">
               By signing in, you agree to our Terms of Service and Privacy Policy.
             </p>
@@ -56,7 +63,7 @@ const SignInContent: React.FC = () => {
       </div>
 
       {/* Right Column - Video */}
-      <div className="w-1/2 relative overflow-hidden">
+      <div className="hidden sm:block sm:w-1/2 relative overflow-hidden">
         <video
           poster="/grocery_background_still.jpg"
           autoPlay
@@ -64,7 +71,7 @@ const SignInContent: React.FC = () => {
           loop
           muted
           playsInline
-          className="object-cover absolute top-[-60px] left-0 w-full h-full"
+          className="object-cover absolute left-0 w-full h-full"
         >
           <source src="/grocery_background.mp4" type="video/mp4" />
           Your browser does not support the video tag.
@@ -72,6 +79,4 @@ const SignInContent: React.FC = () => {
       </div>
     </div>
   );
-};
-
-export default SignInContent;
+}

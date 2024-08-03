@@ -3,11 +3,11 @@
 import { useState } from 'react';
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-// import { signOutUser } from "@/utils/auth";
 import { Layout, BarChart2, BookOpen, LogOut } from 'lucide-react';
+import { signOutUser } from '@/lib/auth';
 
 const navItems = [
-  { text: 'Items', icon: Layout, path: '/items' },
+  { text: 'Dashboard', icon: Layout, path: '/dashboard' },
   { text: 'Analytics', icon: BarChart2, path: '/analytics' },
   { text: 'Recipe', icon: BookOpen, path: '/recipe' },
 ];
@@ -18,7 +18,7 @@ export default function Navbar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const handleSignOut = async () => {
-    // await signOutUser();
+    await signOutUser();
     router.push('/signin');
   };
 
@@ -48,7 +48,7 @@ export default function Navbar() {
       </div>
       <div className="p-4">
         <Button
-          variant="outline"
+          variant="destructive"
           className="w-full justify-start px-2 py-6"
           onClick={handleSignOut}
         >

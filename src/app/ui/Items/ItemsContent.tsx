@@ -16,10 +16,10 @@ import {
 } from "@/components/ui/dialog";
 import { Pencil, Trash, Plus } from 'lucide-react';
 import ItemImage from './ItemImage';
+import { Item } from '@/app/types/item';
 
 interface ItemsProps {
-  initialItems: {}[];
-  // initialItems: Item[];
+  initialItems: Item[];
 }
 
 const Items: React.FC<ItemsProps> = ({ initialItems }) => {

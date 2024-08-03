@@ -1,3 +1,5 @@
+'use client'
+
 import type { Metadata } from "next";
 // This is the root layout component for your Next.js app.
 // Learn more: https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#root-layout-required
@@ -5,6 +7,7 @@ import { DM_Sans } from 'next/font/google'
 import { Space_Mono } from 'next/font/google'
 import { cn } from '@/lib/utils'
 import './globals.css'
+import { AuthProvider } from "@/app/context/AuthContext";
 
 const fontHeading = DM_Sans({
   subsets: ['latin'],
@@ -19,10 +22,10 @@ const fontBody = Space_Mono({
   weight: "400"
 })
 
-export const metadata: Metadata = {
-  title: "ShelfSmart",
-  description: "ShelfSmart is a web app that helps you keep track of your pantry",
-};
+// export const metadata: Metadata = {
+//   title: "ShelfSmart",
+//   description: "ShelfSmart is a web app that helps you keep track of your pantry",
+// };
 
 export default function Layout(
   { children }: Readonly<{
@@ -34,10 +37,12 @@ export default function Layout(
         className={cn(
           'antialiased',
           fontHeading.variable,
-          // fontBody.variable
+          fontBody.variable
         )}
       >
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   )
