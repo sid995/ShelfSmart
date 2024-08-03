@@ -38,7 +38,7 @@ const Items: React.FC<ItemsProps> = ({ initialItems }) => {
   );
 
   const handleEditItem = (id: string) => {
-    router.push(`/items/${id}/edit`);
+    router.push(`/dashboard/${id}/edit`);
   };
 
   const handleDeleteClick = (item: any) => {
@@ -71,7 +71,7 @@ const Items: React.FC<ItemsProps> = ({ initialItems }) => {
           className="flex-grow"
         />
         <Button asChild className="ml-3 whitespace-nowrap">
-          <Link href="/items/create">
+          <Link href="/dashboard/create">
             <Plus className="mr-2 h-4 w-4" /> Add Item
           </Link>
         </Button>

@@ -14,7 +14,7 @@ interface AddItemFormProps {
 
 export default function AddItemForm({ onSubmit }: AddItemFormProps) {
   const [loading, setLoading] = useState<boolean>(false);
-  const [imageName, setImageName] = useState<string | null>(null);
+  // const [imageName, setImageName] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
@@ -26,7 +26,7 @@ export default function AddItemForm({ onSubmit }: AddItemFormProps) {
     try {
       const result = await onSubmit(formData);
       if (result.success) {
-        router.push('/items');
+        router.push('/dashboard');
       } else if (result.error) {
         setError(result.error);
       }
@@ -40,7 +40,7 @@ export default function AddItemForm({ onSubmit }: AddItemFormProps) {
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    setImageName(file ? file.name : null);
+    // setImageName(file ? file.name : null);
   };
 
   return (
@@ -73,9 +73,9 @@ export default function AddItemForm({ onSubmit }: AddItemFormProps) {
             <Upload className="mr-2 h-4 w-4" /> Upload Image
           </Button>
         </div>
-        {imageName && (
+        {/* {imageName && (
           <p className="text-sm text-gray-500">Selected file: {imageName}</p>
-        )}
+        )} */}
       </div>
       {error && (
         <Alert variant="destructive">

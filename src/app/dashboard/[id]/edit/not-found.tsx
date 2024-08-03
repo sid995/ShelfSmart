@@ -24,7 +24,7 @@ export default function NotFound() {
       </Typography>
       <Button
         component={Link}
-        href="/items"
+        href="/dashboard"
         variant="contained"
         color="primary"
         sx={{ mt: 2 }}

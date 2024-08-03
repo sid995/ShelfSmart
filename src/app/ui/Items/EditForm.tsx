@@ -34,7 +34,7 @@ const EditItemForm: React.FC<EditItemFormProps> = ({ item, onSubmit }) => {
     try {
       const result = await onSubmit(formData);
       if (result.success) {
-        router.push('/items');
+        router.push('/dashboard');
       } else if (result.error) {
         setError(result.error);
       }
