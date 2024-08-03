@@ -5,7 +5,7 @@ import Link from 'next/link';
 // import { ShoppingBasketIcon } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
-export default function Component() {
+export default function Page() {
   return (
     <div className="flex flex-col min-h-[100dvh]">
       <header className="bg-white fixed top-0 w-full px-4 lg:px-6 h-14 flex items-center justify-center">
