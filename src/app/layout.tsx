@@ -7,7 +7,6 @@ import { DM_Sans } from 'next/font/google'
 import { Space_Mono } from 'next/font/google'
 import { cn } from '@/lib/utils'
 import './globals.css'
-import { AuthProvider } from "@/app/context/AuthContext";
 
 const fontHeading = DM_Sans({
   subsets: ['latin'],
@@ -27,7 +26,7 @@ const fontBody = Space_Mono({
 //   description: "ShelfSmart is a web app that helps you keep track of your pantry",
 // };
 
-export default function Layout(
+export default function RootLayout(
   { children }: Readonly<{
     children: React.ReactNode;
   }>) {
@@ -40,9 +39,7 @@ export default function Layout(
           fontBody.variable
         )}
       >
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        {children}
       </body>
     </html>
   )
