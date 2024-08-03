@@ -2,10 +2,10 @@
 
 'use client'
 
-import { InventoryItem } from "@/lib/firestoreApi";
+import { NewCreatedInventory } from "@/lib/definitions";
 
 interface InventoryListProps {
-  items: InventoryItem[];
+  items: NewCreatedInventory[];
 }
 
 export function InventoryList({ items }: InventoryListProps) {
@@ -22,7 +22,7 @@ export function InventoryList({ items }: InventoryListProps) {
               </div>
               <div className="text-right">
                 <p className="text-sm text-gray-500">
-                  Created: {item.creationDate.toLocaleDateString()}
+                  Created: {item?.creationDate ? item.creationDate.toLocaleDateString() : 'N/A'}
                 </p>
                 {item.expiryDate && (
                   <p className="text-sm text-gray-500">

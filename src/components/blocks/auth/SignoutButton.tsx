@@ -5,7 +5,7 @@ import { toast } from "@/components/ui/use-toast";
 import { signOut } from "@/lib/auth";
 import { useRouter } from 'next/navigation';
 
-export const SignoutButton = async () => {
+export const SignoutButton = () => {
   const router = useRouter()
 
   const handleSignout = async () => {
