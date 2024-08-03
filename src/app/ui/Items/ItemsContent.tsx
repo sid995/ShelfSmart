@@ -1,32 +1,39 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Box, TextField, Button, List, ListItem, ListItemText, ListItemSecondaryAction, IconButton, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import { deleteItem, Item } from '@/utils/firebaseUtils';
 import Link from 'next/link';
-import SearchBar from './SearchBar';
-import { useRouter } from "next/navigation"
+import { useRouter } from "next/navigation";
+// import { deleteItem, Item } from '@/utils/firebaseUtils';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Pencil, Trash, Plus } from 'lucide-react';
 import ItemImage from './ItemImage';
 
 interface ItemsProps {
-  initialItems: Item[];
+  initialItems: {}[];
+  // initialItems: Item[];
 }
 
 const Items: React.FC<ItemsProps> = ({ initialItems }) => {
   const router = useRouter();
-  const [items, setItems] = useState<Item[]>(initialItems);
+  const [items, setItems] = useState(initialItems);
   const [searchTerm, setSearchTerm] = useState('');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState<Item | null>(null);
+  const [itemToDelete, setItemToDelete] = useState<any>(null);
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
   };
 
-  const filteredItems = items.filter(item =>
+  const filteredItems = items.filter((item: any) =>
     item.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -34,7 +41,7 @@ const Items: React.FC<ItemsProps> = ({ initialItems }) => {
     router.push(`/items/${id}/edit`);
   };
 
-  const handleDeleteClick = (item: Item) => {
+  const handleDeleteClick = (item: any) => {
     setItemToDelete(item);
     setDeleteDialogOpen(true);
   };
@@ -42,8 +49,8 @@ const Items: React.FC<ItemsProps> = ({ initialItems }) => {
   const handleDeleteConfirm = async () => {
     if (itemToDelete) {
       try {
-        await deleteItem(itemToDelete.id);
-        setItems(items.filter(item => item.id !== itemToDelete.id));
+        // await deleteItem(itemToDelete.id);
+        setItems(items.filter((item: any) => item.id !== itemToDelete.id));
         setDeleteDialogOpen(false);
         setItemToDelete(null);
       } catch (error) {
@@ -53,89 +60,66 @@ const Items: React.FC<ItemsProps> = ({ initialItems }) => {
     }
   };
 
-  const handleDeleteCancel = () => {
-    setDeleteDialogOpen(false);
-    setItemToDelete(null);
-  };
-
   return (
-    <Box sx={{ maxWidth: 800, margin: 'auto', mt: 4 }}>
-      <h1 className={`mb-4 text-xl md:text-2xl`}>
-        Items
-      </h1>
-      <Box sx={{ display: 'flex', mb: 4 }}>
-        <SearchBar
+    <div className="max-w-3xl mx-auto mt-8">
+      <h1 className="mb-4 text-xl md:text-2xl font-bold">Items</h1>
+      <div className="flex mb-4">
+        <Input
           placeholder="Search..."
-        // handleSearch={(value) => {/* Your search handling logic */}}
-        // defaultValue={searchParams.get('query')?.toString()}
+          value={searchTerm}
+          onChange={handleSearch}
+          className="flex-grow"
         />
-        <Button
-          component={Link}
-          href="/items/create"
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          sx={{
-            ml: 3,
-            color: "white",
-            textTransform: 'uppercase',
-            whiteSpace: 'nowrap',
-            '&:hover': {
-              backgroundColor: 'primary.dark',
-            },
-          }}
-        >
-          Add Item
+        <Button asChild className="ml-3 whitespace-nowrap">
+          <Link href="/items/create">
+            <Plus className="mr-2 h-4 w-4" /> Add Item
+          </Link>
         </Button>
-      </Box>
+      </div>
 
-      <List>
-        {filteredItems.map((item) => (
-          <ListItem key={item.id} divider sx={{ display: 'flex', alignItems: 'center' }}>
+      <ul className="divide-y divide-gray-200">
+        {filteredItems.map((item: any) => (
+          <li key={item.id} className="py-4 flex items-center">
             <ItemImage src={item.imageUrl ?? ""} alt={item.name} width={50} height={50} />
-            <ListItemText
-              primary={item.name}
-              secondary={`Quantity: ${item.quantity}`}
-              sx={{ ml: 2 }}
-            />
-            <ListItemSecondaryAction>
-              <IconButton edge="end" aria-label="edit" onClick={() => handleEditItem(item.id)} sx={{ mr: 1 }}>
-                <EditIcon />
-              </IconButton>
-              <IconButton edge="end" aria-label="delete" onClick={() => handleDeleteClick(item)}>
-                <DeleteIcon />
-              </IconButton>
-            </ListItemSecondaryAction>
-          </ListItem>
+            <div className="ml-4 flex-grow">
+              <p className="text-sm font-medium text-gray-900">{item.name}</p>
+              <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
+            </div>
+            <div>
+              <Button variant="ghost" size="icon" onClick={() => handleEditItem(item.id)}>
+                <Pencil className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={() => handleDeleteClick(item)}>
+                <Trash className="h-4 w-4" />
+              </Button>
+            </div>
+          </li>
         ))}
-      </List>
+      </ul>
 
       {filteredItems.length === 0 && (
-        <Typography variant="body1" sx={{ mt: 2, textAlign: 'center' }}>
-          No items found.
-        </Typography>
+        <p className="mt-4 text-center text-gray-500">No items found.</p>
       )}
-      <Dialog
-        open={deleteDialogOpen}
-        onClose={handleDeleteCancel}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">{"Confirm Deletion"}</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            Are you sure you want to delete {itemToDelete?.name}? This action cannot be undone.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDeleteCancel}>Cancel</Button>
-          <Button onClick={handleDeleteConfirm} color="error" autoFocus>
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
 
-    </Box>
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Deletion</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete {itemToDelete?.name}? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteConfirm}>
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 };
 

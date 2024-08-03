@@ -1,14 +1,22 @@
-'use client';
+'use client'
 
 import React, { useState } from 'react';
-import { Box, TextField, Button, CircularProgress, Typography } from '@mui/material';
 import { useRouter } from 'next/navigation';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import { Item } from '@/utils/firebaseUtils';
-import ItemImage from './ItemImage';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Loader2, Upload } from "lucide-react";
+// import { Item } from '@/utils/firebaseUtils';
+import Image from 'next/image';
+
+// interface EditItemFormProps {
+//   item: Item;
+//   onSubmit: (formData: FormData) => Promise<{ success?: boolean; error?: string }>;
+// }
 
 interface EditItemFormProps {
-  item: Item;
+  item: any;
   onSubmit: (formData: FormData) => Promise<{ success?: boolean; error?: string }>;
 }
 
@@ -44,70 +52,63 @@ const EditItemForm: React.FC<EditItemFormProps> = ({ item, onSubmit }) => {
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
-      <TextField
-        fullWidth
-        label="Item Name"
-        name="name"
-        required
-        margin="normal"
-        defaultValue={item.name}
-      />
-      <TextField
-        fullWidth
-        label="Quantity"
-        name="quantity"
-        type="number"
-        required
-        margin="normal"
-        defaultValue={item.quantity}
-      />
-      <Box sx={{ mt: 2, mb: 2 }}>
-        <Typography variant="subtitle1" gutterBottom>
-          Current Image:
-        </Typography>
-        <ItemImage src={item.imageUrl ?? ""} alt={item.name} width={200} height={200} />
-      </Box>
-      <Button
-        variant="contained"
-        component="label"
-        startIcon={<CloudUploadIcon />}
-        fullWidth
-        sx={{ mt: 2, mb: 1 }}
-      >
-        Upload New Image
-        <input
-          type="file"
-          name="image"
-          accept="image/*"
-          hidden
-          onChange={handleImageChange}
-        />
-      </Button>
-      {imageName && (
-        <Typography variant="body2" sx={{ mb: 2 }}>
-          New file selected: {imageName}
-        </Typography>
-      )}
-      {!imageName && (
-        <Typography variant="body2" sx={{ mb: 2 }}>
-          Current image: {item.imageUrl}
-        </Typography>
-      )}
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="name">Item Name</Label>
+        <Input id="name" name="name" required defaultValue={item.name} />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="quantity">Quantity</Label>
+        <Input id="quantity" name="quantity" type="number" required defaultValue={item.quantity} />
+      </div>
+      <div className="space-y-2">
+        <Label>Current Image:</Label>
+        {item.imageUrl && (
+          <div className="mt-2">
+            <Image src={item.imageUrl} alt={item.name} width={200} height={200} className="rounded-md" />
+          </div>
+        )}
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="image">Upload New Image</Label>
+        <div className="flex items-center space-x-2">
+          <Input
+            id="image"
+            type="file"
+            name="image"
+            accept="image/*"
+            className="hidden"
+            onChange={handleImageChange}
+          />
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => document.getElementById('image')?.click()}
+            className="w-full"
+          >
+            <Upload className="mr-2 h-4 w-4" /> Upload New Image
+          </Button>
+        </div>
+        {imageName ? (
+          <p className="text-sm text-gray-500">New file selected: {imageName}</p>
+        ) : (
+          <p className="text-sm text-gray-500">Current image: {item.imageUrl}</p>
+        )}
+      </div>
       {error && (
-        <Typography color="error" sx={{ mt: 2 }}>
-          {error}
-        </Typography>
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       )}
-      <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
-        <Button onClick={() => router.back()} sx={{ mr: 1 }}>
+      <div className="flex justify-end space-x-2">
+        <Button variant="outline" onClick={() => router.back()}>
           Cancel
         </Button>
-        <Button type="submit" variant="contained" disabled={loading}>
-          {loading ? <CircularProgress size={24} /> : 'Update Item'}
+        <Button type="submit" disabled={loading}>
+          {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Update Item'}
         </Button>
-      </Box>
-    </Box>
+      </div>
+    </form>
   );
 };
 

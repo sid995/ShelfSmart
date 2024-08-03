@@ -1,112 +1,61 @@
 'use client'
 
-import { Box, List, ListItem, ListItemIcon, ListItemText, Button, Typography } from "@mui/material"
-import { usePathname } from "next/navigation";
-import { useRouter } from "next/navigation"
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import AnalyticsIcon from '@mui/icons-material/Analytics';
-import MenuBookIcon from '@mui/icons-material/MenuBook';
-import ExitToAppIcon from '@mui/icons-material/ExitToApp';
-import { signOutUser } from "@/utils/auth";
+import { useState } from 'react';
+import { usePathname, useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+// import { signOutUser } from "@/utils/auth";
+import { Layout, BarChart2, BookOpen, LogOut } from 'lucide-react';
 
 const navItems = [
-  { text: 'Items', icon: <DashboardIcon />, path: '/items' },
-  { text: 'Analytics', icon: <AnalyticsIcon />, path: '/analytics' },
-  { text: 'Recipe', icon: <MenuBookIcon />, path: '/recipe' },
+  { text: 'Items', icon: Layout, path: '/items' },
+  { text: 'Analytics', icon: BarChart2, path: '/analytics' },
+  { text: 'Recipe', icon: BookOpen, path: '/recipe' },
 ];
 
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const handleSignOut = async () => {
-    await signOutUser();
+    // await signOutUser();
     router.push('/signin');
   };
 
   return (
-    <Box
-      sx={{
-        width: { xs: '60px', sm: '200px', md: '250px', lg: '300px' },
-        height: '100vh',
-        bgcolor: 'background.paper',
-        boxShadow: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        transition: 'width 0.3s ease',
-      }}
-    >
-      <Box>
-        <Box sx={{ p: 3, textAlign: 'center' }}>
-          {/* <Image
-            src="/logo.png"
-            alt="SmartShelf Logo"
-            width={60}
-            height={60}
-            style={{ borderRadius: '50%' }}
-          /> */}
+    <nav className={`h-screen bg-background shadow-md flex flex-col justify-between transition-all duration-300 ease-in-out ${isCollapsed ? 'w-16' : 'w-64'}`}>
+      <div>
+        <div className="p-4 text-center">
           {/* Logo */}
-        </Box>
-        <List>
-          {navItems.map((item) => (
-            <ListItem
-              key={item.text}
-              button
-              selected={pathname === item.path}
-              onClick={() => router.push(item.path)}
-              sx={{
-                py: 1.5,
-                '&.Mui-selected': {
-                  bgcolor: 'primary.main',
-                  color: 'white',
-                  '&:hover': {
-                    bgcolor: 'primary.dark',
-                  },
-                },
-                '&:hover': {
-                  bgcolor: 'action.hover',
-                },
-              }}
-            >
-              <ListItemIcon sx={{ color: 'inherit', minWidth: { xs: '100%', sm: 56 } }}>
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText
-                primary={item.text}
-                sx={{
-                  display: { xs: 'none', sm: 'block' },
-                  '& .MuiListItemText-primary': { fontWeight: 500 }
-                }}
-              />
-            </ListItem>
-          ))}
-        </List>
-      </Box>
-      <Box sx={{ p: 2 }}>
+        </div>
+        <ul className="space-y-2">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <li key={item.text}>
+                <Button
+                  variant={pathname === item.path ? "default" : "ghost"}
+                  className={`w-full justify-start px-2 py-6 ${pathname === item.path ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'hover:bg-accent hover:text-accent-foreground'}`}
+                  onClick={() => router.push(item.path)}
+                >
+                  <Icon className={`h-5 w-5 ${isCollapsed ? 'mx-auto' : 'mr-2'}`} />
+                  {!isCollapsed && <span>{item.text}</span>}
+                </Button>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+      <div className="p-4">
         <Button
-          fullWidth
-          variant="outlined"
-          color="primary"
-          startIcon={<ExitToAppIcon />}
+          variant="outline"
+          className="w-full justify-start px-2 py-6"
           onClick={handleSignOut}
-          sx={{
-            justifyContent: 'flex-start',
-            px: 2,
-            py: 1,
-            display: { xs: 'flex', sm: 'flex' },
-            '& .MuiButton-startIcon': {
-              mr: { xs: 0, sm: 1 }
-            },
-            '& .MuiButton-endIcon': {
-              ml: 0,
-              mr: { xs: 0, sm: 1 }
-            }
-          }}
         >
-          <Typography sx={{ display: { xs: 'none', sm: 'block' } }}>Sign Out</Typography>
+          <LogOut className={`h-5 w-5 ${isCollapsed ? 'mx-auto' : 'mr-2'}`} />
+          {!isCollapsed && <span>Sign Out</span>}
         </Button>
-      </Box>
-    </Box>
-  )
+      </div>
+    </nav>
+  );
 }

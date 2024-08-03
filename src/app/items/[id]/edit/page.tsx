@@ -1,14 +1,13 @@
-import { Box, Typography } from '@mui/material';
-import { getItem, updateItem } from '@/utils/firebaseUtils';
+// import { getItem, updateItem } from '@/utils/firebaseUtils';
 import { notFound } from 'next/navigation';
 import EditItemForm from '@/app/ui/Items/EditForm';
 
 export default async function EditItemPage({ params }: { params: { id: string } }) {
-  const item = await getItem(params.id);
-
-  if (!item) {
-    notFound();
-  }
+  // const item = await getItem(params.id);
+  const item = {}
+  // if (!item) {
+  //   notFound();
+  // }
 
   async function handleUpdateItem(formData: FormData) {
     'use server'
@@ -22,7 +21,7 @@ export default async function EditItemPage({ params }: { params: { id: string } 
     }
 
     try {
-      await updateItem(params.id, name, quantity, imageFile || undefined);
+      // await updateItem(params.id, name, quantity, imageFile || undefined);
       return { success: true };
     } catch (error) {
       console.error('Error updating item:', error);
@@ -31,11 +30,9 @@ export default async function EditItemPage({ params }: { params: { id: string } 
   }
 
   return (
-    <Box sx={{ maxWidth: 600, margin: 'auto', mt: 4 }}>
-      <Typography variant="h4" component="h1" gutterBottom>
-        Edit Item
-      </Typography>
+    <div className="max-w-2xl mx-auto mt-8 p-4">
+      <h1 className="text-3xl font-bold mb-6">Edit Item</h1>
       <EditItemForm item={item} onSubmit={handleUpdateItem} />
-    </Box>
+    </div>
   );
 }

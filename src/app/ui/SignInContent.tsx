@@ -1,16 +1,16 @@
 'use client';
 
-import { Typography, Button, Box, Paper } from '@mui/material';
-import GoogleIcon from '@mui/icons-material/Google';
 import { useRouter } from 'next/navigation';
-import { signInWithGoogle } from '@/utils/auth';
+// import { signInWithGoogle } from '@/utils/auth';
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 const SignInContent: React.FC = () => {
   const router = useRouter();
 
   const handleSignIn = async () => {
     try {
-      await signInWithGoogle();
+      // await signInWithGoogle();
       router.push('/items');
     } catch (error) {
       console.error('Error signing in:', error);
@@ -18,70 +18,45 @@ const SignInContent: React.FC = () => {
   };
 
   return (
-    <Box sx={{ display: 'flex', height: '100vh' }}>
+    <div className="flex h-screen">
       {/* Left Column - Sign In */}
-      <Box
-        sx={{
-          width: '50%',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          bgcolor: 'background.default',
-        }}
-      >
-        <Paper
-          elevation={3}
-          sx={{
-            p: 4,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            backgroundColor: 'background.paper',
-            borderRadius: 2,
-            maxWidth: '400px',
-            width: '90%',
-          }}
-        >
-          <Box sx={{ mb: 3 }}>
-            {/* Logo Here */}
-          </Box>
-          <Typography component="h1" variant="h4" sx={{ mb: 3, color: 'text.primary' }}>
-            Sign in to SmartShelf
-          </Typography>
-          <Button
-            fullWidth
-            variant="contained"
-            color="primary"
-            startIcon={<GoogleIcon />}
-            onClick={handleSignIn}
-            className="hover-scale"
-            sx={{
-              color: "white",
-              py: 1.5,
-              textTransform: 'none',
-              fontSize: '1.2rem',
-              '&:hover': {
-                backgroundColor: 'primary.dark',
-              },
-            }}
-          >
-            Sign in with Google
-          </Button>
-          <Typography variant="body2" sx={{ mt: 3, color: 'text.secondary', textAlign: 'center' }}>
-            By signing in, you agree to our Terms of Service and Privacy Policy.
-          </Typography>
-        </Paper>
-      </Box>
+      <div className="w-1/2 flex flex-col justify-center items-center bg-background">
+        <Card className="w-[400px] max-w-[90%]">
+          <CardHeader>
+            <CardTitle className="text-3xl font-bold text-center">Sign in to SmartShelf</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Button
+              variant="default"
+              className="w-full py-6 text-lg hover:bg-primary/90 transition-transform hover:scale-105"
+              onClick={handleSignIn}
+            >
+              <svg
+                className="mr-2 h-4 w-4"
+                aria-hidden="true"
+                focusable="false"
+                data-prefix="fab"
+                data-icon="google"
+                role="img"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 488 512"
+              >
+                <path
+                  fill="currentColor"
+                  d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"
+                ></path>
+              </svg>
+              Sign in with Google
+            </Button>
+            <p className="mt-4 text-sm text-center text-muted-foreground">
+              By signing in, you agree to our Terms of Service and Privacy Policy.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Right Column - Video */}
-      <Box
-        sx={{
-          width: '50%',
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
+      <div className="w-1/2 relative overflow-hidden">
         <video
           poster="/grocery_background_still.jpg"
           autoPlay
@@ -89,20 +64,13 @@ const SignInContent: React.FC = () => {
           loop
           muted
           playsInline
-          width="100%"
-          height="100%"
-          style={{
-            objectFit: 'cover',
-            position: 'absolute',
-            top: -60,
-            left: 0,
-          }}
+          className="object-cover absolute top-[-60px] left-0 w-full h-full"
         >
           <source src="/grocery_background.mp4" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 };
 

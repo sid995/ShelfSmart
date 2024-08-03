@@ -1,9 +1,12 @@
 'use client'
 
 import { useState } from "react"
-import { Box, Button, CircularProgress, TextField, Typography } from "@mui/material"
 import { useRouter } from "next/navigation"
-import CloudUploadIcon from "@mui/icons-material/CloudUpload"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Loader2, Upload } from "lucide-react"
 
 interface AddItemFormProps {
   onSubmit: (formData: FormData) => Promise<{ success: boolean; error: string | undefined }>;
@@ -41,58 +44,52 @@ export default function AddItemForm({ onSubmit }: AddItemFormProps) {
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
-      <TextField
-        fullWidth
-        label="Item Name"
-        name="name"
-        required
-        margin="normal"
-      />
-      <TextField
-        fullWidth
-        label="Quantity"
-        name="quantity"
-        type="number"
-        required
-        defaultValue={1}
-        margin="normal"
-      />
-      <Button
-        variant="contained"
-        component="label"
-        startIcon={<CloudUploadIcon />}
-        fullWidth
-        sx={{ mt: 2, mb: 1 }}
-      >
-        Upload Image
-        <input
-          type="file"
-          name="image"
-          accept="image/*"
-          hidden
-          // required
-          onChange={handleImageChange}
-        />
-      </Button>
-      {imageName && (
-        <Typography variant="body2" sx={{ mb: 2 }}>
-          Selected file: {imageName}
-        </Typography>
-      )}
+    <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="name">Item Name</Label>
+        <Input id="name" name="name" required />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="quantity">Quantity</Label>
+        <Input id="quantity" name="quantity" type="number" required defaultValue={1} />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="image">Upload Image</Label>
+        <div className="flex items-center space-x-2">
+          <Input
+            id="image"
+            type="file"
+            name="image"
+            accept="image/*"
+            className="hidden"
+            onChange={handleImageChange}
+          />
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => document.getElementById('image')?.click()}
+            className="w-full"
+          >
+            <Upload className="mr-2 h-4 w-4" /> Upload Image
+          </Button>
+        </div>
+        {imageName && (
+          <p className="text-sm text-gray-500">Selected file: {imageName}</p>
+        )}
+      </div>
       {error && (
-        <Typography color="error" sx={{ mt: 2 }}>
-          {error}
-        </Typography>
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       )}
-      <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
-        <Button onClick={() => router.back()} sx={{ mr: 1 }}>
+      <div className="flex justify-end space-x-2">
+        <Button variant="outline" onClick={() => router.back()}>
           Cancel
         </Button>
-        <Button type="submit" variant="contained" disabled={loading}>
-          {loading ? <CircularProgress size={24} /> : 'Add Item'}
+        <Button type="submit" disabled={loading}>
+          {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Add Item'}
         </Button>
-      </Box>
-    </Box>
+      </div>
+    </form>
   );
 }

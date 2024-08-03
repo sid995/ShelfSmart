@@ -2,9 +2,7 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { Box, CircularProgress } from '@mui/material';
-import BrokenImageIcon from '@mui/icons-material/BrokenImage';
-import ImageIcon from '@mui/icons-material/Image';
+import { Loader2, Image as ImageIcon, ImageOff } from 'lucide-react';
 
 interface ItemImageProps {
   src?: string;
@@ -19,36 +17,25 @@ const ItemImage: React.FC<ItemImageProps> = ({ src, alt, width, height }) => {
 
   if (!src) {
     return (
-      <Box
-        sx={{
-          width,
-          height,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: 'grey.200',
-        }}
+      <div
+        className="flex justify-center items-center bg-gray-200"
+        style={{ width, height }}
       >
-        <ImageIcon sx={{ fontSize: 40, color: 'grey.500' }} />
-      </Box>
+        <ImageIcon className="w-10 h-10 text-gray-500" />
+      </div>
     );
   }
 
   return (
-    <Box
-      sx={{
-        position: 'relative',
-        width,
-        height,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'grey.200',
-      }}
+    <div
+      className="relative flex justify-center items-center bg-gray-200"
+      style={{ width, height }}
     >
-      {isLoading && <CircularProgress />}
+      {isLoading && (
+        <Loader2 className="w-10 h-10 text-gray-500 animate-spin" />
+      )}
       {hasError ? (
-        <BrokenImageIcon sx={{ fontSize: 40, color: 'grey.500' }} />
+        <ImageOff className="w-10 h-10 text-gray-500" />
       ) : (
         <Image
           src={src}
@@ -60,13 +47,10 @@ const ItemImage: React.FC<ItemImageProps> = ({ src, alt, width, height }) => {
             setIsLoading(false);
             setHasError(true);
           }}
-          style={{
-            objectFit: 'cover',
-            display: isLoading ? 'none' : 'block'
-          }}
+          className={`object-cover ${isLoading ? 'hidden' : 'block'}`}
         />
       )}
-    </Box>
+    </div>
   );
 };
 

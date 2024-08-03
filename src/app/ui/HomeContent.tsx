@@ -1,7 +1,7 @@
 'use client'
 
 import { signOutUser } from '@/utils/auth';
-import { Container, Typography, Button, Box } from '@mui/material';
+import { Button } from "@/components/ui/button"
 import { useRouter } from 'next/navigation';
 
 type UserProps = {
@@ -23,23 +23,23 @@ const HomeContent: React.FC<HomeContentProps> = ({ user }) => {
   };
 
   if (!user) {
-    return <div>Loading...</div>; // or a loading indicator if appropriate
+    return <div className="flex justify-center items-center h-screen">Loading...</div>;
   }
 
   return (
-    <Container maxWidth="sm">
-      <Box sx={{ my: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Welcome to SmartShelf
-        </Typography>
-        <Typography variant="h6" gutterBottom>
-          Logged in as: {user?.name}
-        </Typography>
-        <Button variant="contained" onClick={handleSignOut} sx={{ mt: 2 }}>
+    <div className="container max-w-sm mx-auto my-8">
+      <div className="space-y-4">
+        <h1 className="text-3xl font-bold">Welcome to SmartShelf</h1>
+        <h2 className="text-xl">Logged in as: {user?.name}</h2>
+        <Button
+          variant="default"
+          onClick={handleSignOut}
+          className="w-full"
+        >
           Sign Out
         </Button>
-      </Box>
-    </Container>
+      </div>
+    </div>
   );
 };
 

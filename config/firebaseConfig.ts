@@ -1,6 +1,6 @@
 import { getFirestore } from "firebase/firestore";
-import { getApps, initializeApp } from "firebase/app"
-import { getAuth } from "firebase/auth";
+import { getApp, getApps, initializeApp } from "firebase/app"
+import { getAuth, getIdToken } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
@@ -13,9 +13,16 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const storage = getStorage(app);
+// const storage = getStorage(app);
 
-export { app, auth, db, storage };
+const getUserIdToken = async () => {
+  if (auth?.currentUser) {
+    return await getIdToken(auth.currentUser);
+  }
+  return null;
+};
+
+export { app, auth, db, getUserIdToken };

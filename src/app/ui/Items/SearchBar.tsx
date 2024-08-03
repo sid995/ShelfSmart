@@ -1,43 +1,24 @@
-import { InputAdornment, TextField, styled } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
+import React from 'react';
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
 
-const StyledTextField = styled(TextField)(({ theme }) => ({
-  '& .MuiOutlinedInput-root': {
-    '& fieldset': {
-      borderColor: theme.palette.grey[200],
-    },
-    '&:hover fieldset': {
-      borderColor: theme.palette.grey[300],
-    },
-    '&.Mui-focused fieldset': {
-      borderColor: theme.palette.primary.main,
-    },
-  },
-  '& .MuiInputBase-input': {
-    padding: '9px 14px',
-    paddingLeft: '40px', // Make room for the search icon
-    fontSize: '0.875rem',
-  },
-}));
+interface SearchBarProps {
+  placeholder?: string;
+  handleSearch?: (value: string) => void;
+  defaultValue?: string;
+}
 
-export default function SearchBar({ placeholder, handleSearch, defaultValue }: any) {
+export default function SearchBar({ placeholder, handleSearch, defaultValue }: SearchBarProps) {
   return (
-    <StyledTextField
-      fullWidth
-      variant="outlined"
-      placeholder={placeholder}
-      // onChange={(e) => handleSearch(e.target.value)}
-      defaultValue={defaultValue}
-      InputProps={{
-        startAdornment: (
-          <InputAdornment position="start" sx={{ position: 'absolute', left: 8 }}>
-            <SearchIcon color="action" />
-          </InputAdornment>
-        ),
-      }}
-      inputProps={{
-        'aria-label': 'search',
-      }}
-    />
+    <div className="relative w-full">
+      <Input
+        className="pl-10 py-2 text-sm border-gray-200 hover:border-gray-300 focus:border-primary focus:ring-primary"
+        placeholder={placeholder}
+        onChange={(e) => handleSearch && handleSearch(e.target.value)}
+        defaultValue={defaultValue}
+        aria-label="search"
+      />
+      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+    </div>
   );
 }
