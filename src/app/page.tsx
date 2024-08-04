@@ -113,8 +113,8 @@ export default function Page() {
                   </Avatar>
                   <div className="text-lg font-medium">Jane Doe</div>
                   <p className="text-muted-foreground text-sm">
-                    "This app has been a game-changer for my pantry\n organization. I love being able to easily see what
-                    I have\n and create shopping lists."
+                    &quot;This app has been a game-changer for my pantry\n organization. I love being able to easily see what
+                    I have\n and create shopping lists.&quot;
                   </p>
                 </div>
                 <div className="mx-auto flex w-full flex-col items-center justify-center p-4 sm:p-8 space-y-2">
@@ -124,8 +124,8 @@ export default function Page() {
                   </Avatar>
                   <div className="text-lg font-medium">John Doe</div>
                   <p className="text-muted-foreground text-sm">
-                    "This app has saved me so much time and money. I no longer\n overbuy or forget what I already have
-                    in my pantry."
+                    &quot;This app has saved me so much time and money. I no longer\n overbuy or forget what I already have
+                    in my pantry.&quot;
                   </p>
                 </div>
                 <div className="mx-auto flex w-full flex-col items-center justify-center p-4 sm:p-8 space-y-2">
@@ -135,7 +135,7 @@ export default function Page() {
                   </Avatar>
                   <div className="text-lg font-medium">Jane Smith</div>
                   <p className="text-muted-foreground text-sm">
-                    "I love the simplicity and functionality of this app. It's\n made managing my pantry a breeze."
+                    &quot;I love the simplicity and functionality of this app. It's\n made managing my pantry a breeze.&quot;
                   </p>
                 </div>
               </div>
