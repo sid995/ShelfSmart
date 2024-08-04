@@ -33,3 +33,13 @@ export type CurrentSessionType = {
     name: any;
   };
 } | null;
+
+export interface AnalyticsContentProps {
+  totalItems: number;
+  totalRecipes: number;
+  soonExpiring: number;
+  expiryData: Array<{ name: string; value: number }>;
+  stockLevels: Array<{ name: string; quantity: number }>;
+  recentlyAdded: string[];
+  itemsWithImages: Array<{ name: string; value: number }>;
+}

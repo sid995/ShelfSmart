@@ -2,14 +2,19 @@ import { ExpiryAnalysisChartSkeleton, ExpiryAnalysisChart } from "@/components/b
 import { ItemsWithImagesChartSkeleton, ItemsWithImagesChart } from "@/components/blocks/analytics/ItemsWithImagesChart";
 import { RecentlyAddedCardSkeleton, RecentlyAddedCard } from "@/components/blocks/analytics/RecentlyAddedCard";
 import { StockLevelsChartSkeleton, StockLevelsChart } from "@/components/blocks/analytics/StockLevelsChart";
-import { TotalItemsCard, TotalItemsSkeleton } from "@/components/blocks/analytics/TotalItemsCard";
 import { AddItemButton } from "@/components/blocks/button/Buttons";
+import SingleCard from "@/components/blocks/card/SingleCard";
+import { SkeletonCards } from "@/components/blocks/card/skeleton";
+import { getServerSession } from "@/lib/auth/auth-server";
+import { CurrentSessionType } from "@/lib/definitions";
 import { getAnalyticsData } from "@/lib/firestoreApi";
 import { Suspense } from "react";
 
 
 export default async function AnalyticsDashboard() {
-  const data = await getAnalyticsData();
+  const currentSession: CurrentSessionType = await getServerSession();
+
+  const data = await getAnalyticsData(currentSession!.user.id);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -18,11 +23,15 @@ export default async function AnalyticsDashboard() {
         <AddItemButton href="/dashboard/create" />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Suspense fallback={<TotalItemsSkeleton />}>
-          <TotalItemsCard totalItems={data.totalItems} />
+      <div className="mb-8 grid grid-cols-1 xs:grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+        <Suspense fallback={<SkeletonCards />}>
+          <SingleCard title="Total Items" quantity={data.totalItems} />
+          <SingleCard title="Total Recipes" quantity={data.totalRecipes} />
+          <SingleCard title="Expiring Soon" quantity={data.soonExpiring} />
         </Suspense>
+      </div>
 
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Suspense fallback={<ExpiryAnalysisChartSkeleton />}>
           <ExpiryAnalysisChart data={data.expiryData} />
         </Suspense>

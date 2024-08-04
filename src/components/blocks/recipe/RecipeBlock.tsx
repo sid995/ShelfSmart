@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { CurrentSessionType } from '@/lib/definitions';
@@ -8,6 +8,7 @@ import { toast } from '@/components/ui/use-toast';
 import { deleteRecipe, saveRecipe } from '@/lib/firestoreApi';
 import { Bookmark } from 'lucide-react';
 import RecipeGeneratorCard from './RecipeGeneratorCard';
+import { useSearchParams } from 'next/navigation';
 
 interface RecipeBlockProps {
   session: CurrentSessionType;
@@ -20,20 +21,30 @@ type RecipeType = {
   description: string;
 };
 
-
 export default function RecipesPage({ session, initialRecipe = null }: RecipeBlockProps) {
   let userId: any
   if (session!.user.id) userId = session!.user.id
 
-  const [inputText, setInputText] = useState(initialRecipe?.title || '');
-  const [recipeData, setRecipeData] = useState<{ id: string, title: string; recipe: string } | null>(initialRecipe ? ({
-    id: initialRecipe?.id || '',
-    title: initialRecipe?.title || '',
-    recipe: initialRecipe?.description || '',
-  }) : null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [isSaved, setIsSaved] = useState(!!initialRecipe);
+  const searchParams = useSearchParams();
+  const recipeId = searchParams.get('id');
+
+  const [inputText, setInputText] = useState<string>(initialRecipe?.title || '');
+  const [recipeData, setRecipeData] = useState<RecipeType | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [isSaved, setIsSaved] = useState<boolean>(!!initialRecipe);
+
+  useEffect(() => {
+    if (initialRecipe) {
+      setInputText(initialRecipe.title);
+      setRecipeData(initialRecipe);
+      setIsSaved(true);
+    } else {
+      setInputText('');
+      setRecipeData(null);
+      setIsSaved(false);
+    }
+  }, [initialRecipe, recipeId]);
 
   const generateRecipe = async () => {
     setIsLoading(true);
@@ -45,7 +56,7 @@ export default function RecipesPage({ session, initialRecipe = null }: RecipeBlo
         body: JSON.stringify({ prompt: inputText })
       });
       const { title, recipe } = await response.json();
-      setRecipeData({ id: "", title, recipe });
+      setRecipeData({ id: "", title, description: recipe });
     } catch (error) {
       console.error('Error generating recipe:', error);
     }
@@ -69,7 +80,7 @@ export default function RecipesPage({ session, initialRecipe = null }: RecipeBlo
         const savedRecipe = await saveRecipe({
           userId,
           title: recipeData.title,
-          description: recipeData.recipe,
+          description: recipeData.description,
         });
         setRecipeData({ ...recipeData, id: savedRecipe.id });
         setIsSaved(true);
@@ -115,7 +126,7 @@ export default function RecipesPage({ session, initialRecipe = null }: RecipeBlo
               </Button>
             </CardHeader>
             <CardContent>
-              <pre className="whitespace-pre-wrap">{recipeData.recipe}</pre>
+              <pre className="whitespace-pre-wrap">{recipeData.description}</pre>
             </CardContent>
           </Card>
         )}

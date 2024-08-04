@@ -15,7 +15,6 @@ type RecipeType = {
   description: string;
 };
 
-
 async function RecipeContent({ id, currentSession }: { id: string; currentSession: CurrentSessionType }) {
   try {
     let recipe: RecipeType = await getRecipeById(id);
@@ -24,7 +23,7 @@ async function RecipeContent({ id, currentSession }: { id: string; currentSessio
       title: removePrefix(recipe.title, "Title: "),
     } as RecipeType;
 
-    return <RecipeBlock session={currentSession} initialRecipe={recipe} />;
+    return <RecipeBlock session={currentSession} initialRecipe={recipe} key={id} />;
   } catch (error) {
     console.error('Error fetching recipe:', error);
     return <RecipeBlock session={currentSession} />;

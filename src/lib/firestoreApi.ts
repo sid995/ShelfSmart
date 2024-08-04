@@ -1,4 +1,4 @@
-import { AddItemResult, InventoryItem, NewCreatedInventory } from "./definitions";
+import { AddItemResult, AnalyticsContentProps, InventoryItem, NewCreatedInventory } from "./definitions";
 import { analytics, db as clientDb, logEvent } from "@/config/firebaseConfig";
 import { addDoc, collection, deleteDoc, doc, endAt, getDoc, getDocs, limit, orderBy, query, serverTimestamp, updateDoc, where } from "@firebase/firestore";
 import { Timestamp } from "@firebase/firestore";
@@ -108,11 +108,17 @@ export async function getInventoryItem(itemId: string): Promise<NewCreatedInvent
   }
 }
 
-export async function getAnalyticsData() {
+export async function getAnalyticsData(userId: string): Promise<AnalyticsContentProps> {
   const itemsRef = collection(clientDb, 'inventory');
-  const snapshot = await getDocs(itemsRef);
+  const recipesRef = collection(clientDb, 'recipes');
 
-  const totalItems = snapshot.size;
+  const [inventorySnapshot, recipesSnapshot] = await Promise.all([
+    getDocs(query(itemsRef, where('userId', '==', userId))),
+    getDocs(query(recipesRef, where('userId', '==', userId)))
+  ]);
+
+  const totalItems = inventorySnapshot.size;
+  const totalRecipes = recipesSnapshot.size;
 
   const now = Timestamp.now();
   const oneWeekLater = Timestamp.fromDate(new Date(now.toDate().getTime() + 7 * 24 * 60 * 60 * 1000));
@@ -127,7 +133,7 @@ export async function getAnalyticsData() {
   let withImage = 0;
   let withoutImage = 0;
 
-  snapshot.forEach(doc => {
+  inventorySnapshot.forEach(doc => {
     const data = doc.data();
     if (data.expiryDate) {
       if (data.expiryDate < oneWeekLater) soonExpiring++;
@@ -150,12 +156,15 @@ export async function getAnalyticsData() {
 
   return {
     totalItems,
+    totalRecipes,
+    soonExpiring,
     expiryData: [
       { name: 'Expiring Soon', value: soonExpiring },
       { name: 'Expiring Later', value: laterExpiring },
       { name: 'No Expiry', value: noExpiry }
     ],
-    stockLevels: [...stockLevels.slice(0, 5), ...stockLevels.slice(-5).reverse()],
+    // stockLevels: [...stockLevels.slice(0, 5), ...stockLevels.slice(-5).reverse()],
+    stockLevels: stockLevels.slice(0, 5),
     recentlyAdded: recentItems,
     itemsWithImages: [
       { name: 'With Image', value: withImage },
