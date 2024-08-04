@@ -6,10 +6,21 @@ import Link from "next/link";
 import { SVGProps, useState } from 'react';
 import { deleteInventoryItem } from "@/lib/firestoreApi";
 import { useRouter } from 'next/navigation';
+import { Plus } from "lucide-react";
 
 type ButtonProps = {
   id?: string;
 };
+
+export function AddItemButton({ href }: { href: string }) {
+  return (
+    <Button asChild className="bg-primary text-primary-foreground">
+      <Link href={href} prefetch={false}>
+        <Plus className="w-4 h-4 mr-2" /> Add Item
+      </Link>
+    </Button>
+  )
+}
 
 export function UpdateItemButton({ id }: { id: string }) {
   return (
