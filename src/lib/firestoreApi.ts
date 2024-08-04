@@ -1,6 +1,19 @@
 import { AddItemResult, AnalyticsContentProps, InventoryItem, NewCreatedInventory } from "./definitions";
 import { analytics, db as clientDb, logEvent } from "@/config/firebaseConfig";
-import { addDoc, collection, deleteDoc, doc, endAt, getDoc, getDocs, limit, orderBy, query, serverTimestamp, updateDoc, where } from "@firebase/firestore";
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  limit,
+  orderBy,
+  query,
+  serverTimestamp,
+  updateDoc,
+  where
+} from "@firebase/firestore";
 import { Timestamp } from "@firebase/firestore";
 
 
@@ -12,27 +25,27 @@ const ITEMS_PER_PAGE = 10;
 //   return snapshot.docs[snapshot.docs.length - 1];
 // }
 
-export async function getInventoryItems(userId: string, searchQuery: string, page: number = 1): Promise<NewCreatedInventory[]> {
+export async function getInventoryItems(
+  userId: string,
+  searchQuery: string,
+  page: number = 1
+): Promise<NewCreatedInventory[]> {
+  console.log("searchQuery", searchQuery)
   try {
     const inventoryRef = collection(clientDb, 'inventory');
     let q = query(
       inventoryRef,
       where('userId', '==', userId),
-      orderBy('creationDate', 'desc')
+      orderBy('lowerCaseName', 'asc')  // Assuming you have a lowerCaseName field
     );
 
     if (searchQuery) {
-      q = query(q, where('name', '>=', searchQuery), where('name', '<=', searchQuery + '\uf8ff'));
+      const lowerSearchQuery = searchQuery.toLowerCase();
+      q = query(q,
+        where('lowerCaseName', '>=', lowerSearchQuery),
+        where('lowerCaseName', '<=', lowerSearchQuery + '\uf8ff')
+      );
     }
-
-    // q = query(q, limit(ITEMS_PER_PAGE));
-
-    // if (page > 1) {
-    //   const lastVisibleDoc = await getLastVisibleDoc(q, page);
-    //   if (lastVisibleDoc) {
-    //     q = query(q, startAfter(lastVisibleDoc));
-    //   }
-    // }
 
     const snapshot = await getDocs(q);
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as NewCreatedInventory));
@@ -50,8 +63,6 @@ export async function getInventoryItems(userId: string, searchQuery: string, pag
 export async function createInventoryItem(userId: string, itemData: InventoryItem): Promise<AddItemResult> {
   try {
     const inventoryRef = collection(clientDb, 'inventory');
-
-
     const newItem = {
       ...itemData,
       userId: userId,
@@ -77,7 +88,6 @@ export async function createInventoryItem(userId: string, itemData: InventoryIte
 }
 
 export async function deleteInventoryItem(itemId: string): Promise<boolean> {
-  console.log("deleteInventoryItem: ", itemId)
   try {
     await deleteDoc(doc(clientDb, 'inventory', itemId));
     return true;
@@ -89,7 +99,11 @@ export async function deleteInventoryItem(itemId: string): Promise<boolean> {
 
 export async function updateInventoryItem(itemId: string, updateData: Partial<NewCreatedInventory>): Promise<boolean> {
   try {
-    await updateDoc(doc(clientDb, 'inventory', itemId), updateData);
+    const updateObject = { ...updateData };
+    if (updateData.name) {
+      updateObject.lowerCaseName = updateData.name.toLowerCase();
+    }
+    await updateDoc(doc(clientDb, 'inventory', itemId), updateObject);
     return true;
   } catch (error) {
     console.error('Error updating inventory item:', error);
