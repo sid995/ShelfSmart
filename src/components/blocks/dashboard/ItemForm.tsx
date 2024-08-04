@@ -75,13 +75,11 @@ const ItemForm = ({ session, initialData }: ItemFormProps) => {
       if (initialData) {
         await updateInventoryItem(initialData.id!, itemData);
         toast({
-          title: "Success",
           description: "Item updated successfully",
         });
       } else {
         await createInventoryItem(session!.user.id, itemData);
         toast({
-          title: "Success",
           description: "Item added successfully",
         });
       }
@@ -89,7 +87,6 @@ const ItemForm = ({ session, initialData }: ItemFormProps) => {
       router.refresh();
     } catch (error) {
       toast({
-        title: "Error",
         description: "Failed to save item. Please try again.",
         variant: "destructive",
       });
