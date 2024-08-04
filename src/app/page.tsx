@@ -135,7 +135,7 @@ export default function Page() {
                   </Avatar>
                   <div className="text-lg font-medium">Jane Smith</div>
                   <p className="text-muted-foreground text-sm">
-                    &quot;I love the simplicity and functionality of this app. It's\n made managing my pantry a breeze.&quot;
+                    &quot;I love the simplicity and functionality of this app. It&apos;s\n made managing my pantry a breeze.&quot;
                   </p>
                 </div>
               </div>
