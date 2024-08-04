@@ -1,5 +1,5 @@
 import { AddItemResult, InventoryItem, NewCreatedInventory } from "./definitions";
-import { db as clientDb } from "@/config/firebaseConfig";
+import { analytics, db as clientDb, logEvent } from "@/config/firebaseConfig";
 import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, limit, orderBy, query, startAfter, updateDoc, where } from "@firebase/firestore";
 import { Timestamp } from "@firebase/firestore";
 
@@ -14,7 +14,6 @@ async function getLastVisibleDoc(baseQuery: any, page: number) {
 
 export async function getInventoryItems(userId: string, searchQuery: string, page: number = 1): Promise<NewCreatedInventory[]> {
   try {
-    console.log("Getting inventory items for user:", userId);
     const inventoryRef = collection(clientDb, 'inventory');
     let q = query(
       inventoryRef,
@@ -59,6 +58,15 @@ export async function createInventoryItem(userId: string, itemData: InventoryIte
     } as NewCreatedInventory;
 
     await addDoc(inventoryRef, newItem);
+
+    if (typeof window !== 'undefined') {
+      logEvent(analytics, 'item_added', {
+        item_name: itemData.name,
+        has_image: !!itemData.imageSrc,
+        has_expiry: !!itemData.expiryDate,
+      });
+    }
+
     return { success: true }
   } catch (error) {
     console.error('Error adding inventory item:', error);
@@ -96,4 +104,60 @@ export async function getInventoryItem(itemId: string): Promise<NewCreatedInvent
   } else {
     return null;
   }
+}
+
+export async function getAnalyticsData() {
+  const itemsRef = collection(clientDb, 'inventory');
+  const snapshot = await getDocs(itemsRef);
+
+  const totalItems = snapshot.size;
+
+  const now = Timestamp.now();
+  const oneWeekLater = Timestamp.fromDate(new Date(now.toDate().getTime() + 7 * 24 * 60 * 60 * 1000));
+  let soonExpiring = 0;
+  let laterExpiring = 0;
+  let noExpiry = 0;
+
+  const stockLevels: { name: string; quantity: number }[] = [];
+  const oneWeekAgo = Timestamp.fromDate(new Date(now.toDate().getTime() - 7 * 24 * 60 * 60 * 1000));
+  const recentItems: string[] = [];
+
+  let withImage = 0;
+  let withoutImage = 0;
+
+  snapshot.forEach(doc => {
+    const data = doc.data();
+    if (data.expiryDate) {
+      if (data.expiryDate < oneWeekLater) soonExpiring++;
+      else laterExpiring++;
+    } else {
+      noExpiry++;
+    }
+
+    stockLevels.push({ name: data.name, quantity: data.quantity });
+
+    if (data.creationDate > oneWeekAgo) {
+      recentItems.push(data.name);
+    }
+
+    if (data.imageSrc) withImage++;
+    else withoutImage++;
+  });
+
+  stockLevels.sort((a, b) => b.quantity - a.quantity);
+
+  return {
+    totalItems,
+    expiryData: [
+      { name: 'Expiring Soon', value: soonExpiring },
+      { name: 'Expiring Later', value: laterExpiring },
+      { name: 'No Expiry', value: noExpiry }
+    ],
+    stockLevels: [...stockLevels.slice(0, 5), ...stockLevels.slice(-5).reverse()],
+    recentlyAdded: recentItems,
+    itemsWithImages: [
+      { name: 'With Image', value: withImage },
+      { name: 'Without Image', value: withoutImage }
+    ]
+  };
 }
