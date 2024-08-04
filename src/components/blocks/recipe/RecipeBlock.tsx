@@ -53,7 +53,7 @@ export default function RecipesPage({ session, initialRecipe = null }: RecipeBlo
   };
 
   const handleSaveRecipe = async () => {
-    if (!recipeData) return;
+    if (!recipeData || !userId) return;
     setIsSaving(true);
     try {
       if (isSaved) {
@@ -61,27 +61,27 @@ export default function RecipesPage({ session, initialRecipe = null }: RecipeBlo
         await deleteRecipe(recipeData.id!);
         setIsSaved(false);
         toast({
+          title: "Success",
           description: "Recipe removed from saved recipes.",
         });
       } else {
-        const savedRecipe: any = await saveRecipe({
+        // Save new recipe
+        const savedRecipe = await saveRecipe({
           userId,
           title: recipeData.title,
           description: recipeData.recipe,
         });
-        if (savedRecipe) {
-          setRecipeData({ ...recipeData, id: savedRecipe.id });
-          setIsSaved(true);
-          toast({
-            description: "Recipe saved successfully!",
-          });
-        }
+        setRecipeData({ ...recipeData, id: savedRecipe.id });
+        setIsSaved(true);
+        toast({
+          description: "Recipe saved successfully!",
+        });
       }
     } catch (error) {
-      console.error('Error saving recipe:', error);
+      console.error('Error saving/deleting recipe:', error);
       toast({
         title: "Error",
-        description: "Failed to save recipe. Please try again.",
+        description: "Failed to save/delete recipe. Please try again.",
         variant: "destructive",
       });
     }

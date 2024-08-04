@@ -9,9 +9,6 @@ export default async function EditItemPage({ params }: { params: { id: string } 
   }
 
   return (
-    <div>
-      <h1>Edit Item</h1>
-      <ItemForm initialData={item} />
-    </div>
+    <ItemForm initialData={item} />
   );
 }

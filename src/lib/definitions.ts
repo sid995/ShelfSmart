@@ -16,6 +16,7 @@ export interface InventoryItemWithId extends InventoryItem {
 export interface NewCreatedInventory extends InventoryItemWithId {
   creationDate: Timestamp | null;
   userId: string;
+  lowerCaseName: string;
 }
 
 export type InventoryItemWithOptionalId = Partial<Pick<InventoryItemWithId, 'id'>> & InventoryItem;

@@ -1,16 +1,16 @@
 import { AddItemResult, InventoryItem, NewCreatedInventory } from "./definitions";
 import { analytics, db as clientDb, logEvent } from "@/config/firebaseConfig";
-import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, limit, orderBy, query, startAfter, updateDoc, where } from "@firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, endAt, getDoc, getDocs, limit, orderBy, query, serverTimestamp, updateDoc, where } from "@firebase/firestore";
 import { Timestamp } from "@firebase/firestore";
 
 
 const ITEMS_PER_PAGE = 10;
 
-async function getLastVisibleDoc(baseQuery: any, page: number) {
-  const lastVisibleDocQuery = query(baseQuery, limit((page - 1) * ITEMS_PER_PAGE));
-  const snapshot = await getDocs(lastVisibleDocQuery);
-  return snapshot.docs[snapshot.docs.length - 1];
-}
+// async function getLastVisibleDoc(baseQuery: any, page: number) {
+//   const lastVisibleDocQuery = query(baseQuery, limit((page - 1) * ITEMS_PER_PAGE));
+//   const snapshot = await getDocs(lastVisibleDocQuery);
+//   return snapshot.docs[snapshot.docs.length - 1];
+// }
 
 export async function getInventoryItems(userId: string, searchQuery: string, page: number = 1): Promise<NewCreatedInventory[]> {
   try {
@@ -18,21 +18,21 @@ export async function getInventoryItems(userId: string, searchQuery: string, pag
     let q = query(
       inventoryRef,
       where('userId', '==', userId),
-      orderBy('creationDate', 'desc'),
+      orderBy('creationDate', 'desc')
     );
 
     if (searchQuery) {
       q = query(q, where('name', '>=', searchQuery), where('name', '<=', searchQuery + '\uf8ff'));
     }
 
-    q = query(q, limit(ITEMS_PER_PAGE));
+    // q = query(q, limit(ITEMS_PER_PAGE));
 
-    if (page > 1) {
-      const lastVisibleDoc = await getLastVisibleDoc(q, page);
-      if (lastVisibleDoc) {
-        q = query(q, startAfter(lastVisibleDoc));
-      }
-    }
+    // if (page > 1) {
+    //   const lastVisibleDoc = await getLastVisibleDoc(q, page);
+    //   if (lastVisibleDoc) {
+    //     q = query(q, startAfter(lastVisibleDoc));
+    //   }
+    // }
 
     const snapshot = await getDocs(q);
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as NewCreatedInventory));
@@ -46,6 +46,7 @@ export async function getInventoryItems(userId: string, searchQuery: string, pag
   }
 }
 
+
 export async function createInventoryItem(userId: string, itemData: InventoryItem): Promise<AddItemResult> {
   try {
     const inventoryRef = collection(clientDb, 'inventory');
@@ -55,6 +56,7 @@ export async function createInventoryItem(userId: string, itemData: InventoryIte
       ...itemData,
       userId: userId,
       creationDate: Timestamp.fromDate(new Date()),
+      lowerCaseName: itemData.name.toLowerCase(),
     } as NewCreatedInventory;
 
     await addDoc(inventoryRef, newItem);
@@ -167,7 +169,7 @@ export async function saveRecipe(recipeData: { userId: string; title: string; de
     const recipesRef = collection(clientDb, 'recipes');
     const docRef = await addDoc(recipesRef, {
       ...recipeData,
-      createdAt: new Date()
+      createdAt: serverTimestamp()
     });
     return { id: docRef.id };
   } catch (error) {
