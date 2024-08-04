@@ -1,14 +1,14 @@
 'use client'
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { CurrentSessionType } from '@/lib/definitions';
 import { toast } from '@/components/ui/use-toast';
-import { deleteRecipe, saveRecipe } from '@/lib/firestoreApi';
+import { deleteRecipe, saveRecipe, getInventoryItems } from '@/lib/firestoreApi';
 import { Bookmark } from 'lucide-react';
 import RecipeGeneratorCard from './RecipeGeneratorCard';
-import { useSearchParams } from 'next/navigation';
+import { removePrefix } from '@/lib/utils';
 
 interface RecipeBlockProps {
   session: CurrentSessionType;
@@ -25,10 +25,7 @@ export default function RecipesPage({ session, initialRecipe = null }: RecipeBlo
   let userId: any
   if (session!.user.id) userId = session!.user.id
 
-  const searchParams = useSearchParams();
-  const recipeId = searchParams.get('id');
-
-  const [inputText, setInputText] = useState<string>(initialRecipe?.title || '');
+  const [inputText, setInputText] = useState<string>('');
   const [recipeData, setRecipeData] = useState<RecipeType | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
@@ -44,11 +41,17 @@ export default function RecipesPage({ session, initialRecipe = null }: RecipeBlo
       setRecipeData(null);
       setIsSaved(false);
     }
-  }, [initialRecipe, recipeId]);
+  }, [initialRecipe]);
+
+  const handleDefaultChangeWhenGenerating = useCallback(() => {
+    setIsLoading(true);
+    setRecipeData(null);
+    setIsSaved(false);
+  }, [])
 
   const generateRecipe = async () => {
-    setIsLoading(true);
-    setRecipeData(null)
+    handleDefaultChangeWhenGenerating()
+
     try {
       const response = await fetch('/api/generate-recipe', {
         method: 'POST',
@@ -63,7 +66,7 @@ export default function RecipesPage({ session, initialRecipe = null }: RecipeBlo
     setIsLoading(false);
   };
 
-  const handleSaveRecipe = async () => {
+  const handleSaveOrDeleteRecipe = async () => {
     if (!recipeData || !userId) return;
     setIsSaving(true);
     try {
@@ -99,6 +102,34 @@ export default function RecipesPage({ session, initialRecipe = null }: RecipeBlo
     setIsSaving(false);
   };
 
+  const generateRecipeFromInventory = async () => {
+    handleDefaultChangeWhenGenerating()
+
+    try {
+      // Fetch inventory items
+      const inventoryItems = await getInventoryItems(userId, '', 1);
+      const itemNames = inventoryItems.map(item => item.name).join(', ');
+      setInputText(itemNames);
+
+      // Generate recipe using inventory items
+      const response = await fetch('/api/generate-recipe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: `Create a recipe using some or all of these ingredients: ${itemNames}` })
+      });
+      const { title, recipe } = await response.json();
+      setRecipeData({ id: "", title, description: recipe });
+    } catch (error) {
+      console.error('Error generating recipe from inventory:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate recipe from inventory. Please try again.",
+        variant: "destructive",
+      });
+    }
+    setIsLoading(false);
+  };
+
   return (
     <div className="flex-1 relative">
       <RecipeGeneratorCard
@@ -106,16 +137,17 @@ export default function RecipesPage({ session, initialRecipe = null }: RecipeBlo
         setInputText={setInputText}
         generateRecipe={generateRecipe}
         isLoading={isLoading}
+        generateRecipeFromInventory={generateRecipeFromInventory}
       />
       <section className="p-8 space-y-8">
         {recipeData && (
           <Card className="p-4">
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="max-w-[80%]">{recipeData.title}</CardTitle>
+              <CardTitle className="max-w-[80%]">{removePrefix(recipeData.title, 'Title: ')}</CardTitle>
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={handleSaveRecipe}
+                onClick={handleSaveOrDeleteRecipe}
                 disabled={isSaving}
               >
                 {isSaved ? (
