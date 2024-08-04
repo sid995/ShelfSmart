@@ -161,3 +161,16 @@ export async function getAnalyticsData() {
     ]
   };
 }
+
+export async function saveRecipe(recipeData: { userId: string | null; title: string; description: string }) {
+  try {
+    const recipesRef = collection(clientDb, 'recipes');
+    await addDoc(recipesRef, {
+      ...recipeData,
+      createdAt: new Date()
+    });
+  } catch (error) {
+    console.error('Error saving recipe:', error);
+    throw error;
+  }
+}

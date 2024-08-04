@@ -12,14 +12,14 @@ const links = [
     href: '/dashboard/analytics',
     icon: BarChartIcon,
   },
-  { name: 'Recipes', href: '/dashboard/recipe', icon: BookIcon },
+  { name: 'Recipes', href: '/dashboard/recipes', icon: BookIcon },
 ];
 
 export const Navbar = () => {
   const pathname = usePathname();
 
   return (
-    <aside className="bg-muted/40 border-r px-4 py-6 h-full flex flex-col justify-between">
+    <aside className="bg-muted/40 border-r px-4 py-6 flex flex-col justify-between h-screen">
       <div className="flex flex-col gap-4">
         {links.map((link) => {
           const LinkIcon = link.icon
