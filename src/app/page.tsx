@@ -1,9 +1,9 @@
 'use client'
 
-import React from 'react';
 import Link from 'next/link';
 // import { ShoppingBasketIcon } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import Image from "next/image"
 
 export default function Page() {
   return (
@@ -38,7 +38,7 @@ export default function Page() {
                   </Link>
                 </div>
               </div>
-              <img
+              <Image
                 src="/grocery_background_still.jpg"
                 width="550"
                 height="550"
@@ -60,7 +60,7 @@ export default function Page() {
               </div>
             </div>
             <div className="mx-auto grid max-w-5xl items-center gap-6 py-12 lg:grid-cols-2 lg:gap-12">
-              <img
+              <Image
                 src="/grocery_background_still.jpg"
                 width="550"
                 height="310"
@@ -108,7 +108,7 @@ export default function Page() {
               <div className="grid w-full grid-cols-1 items-stretch justify-center divide-x md:grid-cols-3">
                 <div className="mx-auto flex w-full flex-col items-center justify-center p-4 sm:p-8 space-y-2">
                   <Avatar className="w-12 h-12">
-                    <AvatarImage src="/placeholder-user.jpg" alt="User Avatar" />
+                    {/* <AvatarImage src="/placeholder-user.jpg" alt="User Avatar" /> */}
                     <AvatarFallback>JD</AvatarFallback>
                   </Avatar>
                   <div className="text-lg font-medium">Jane Doe</div>
@@ -119,7 +119,7 @@ export default function Page() {
                 </div>
                 <div className="mx-auto flex w-full flex-col items-center justify-center p-4 sm:p-8 space-y-2">
                   <Avatar className="w-12 h-12">
-                    <AvatarImage src="/placeholder-user.jpg" alt="User Avatar" />
+                    {/* <AvatarImage src="/placeholder-user.jpg" alt="User Avatar" /> */}
                     <AvatarFallback>JD</AvatarFallback>
                   </Avatar>
                   <div className="text-lg font-medium">John Doe</div>
@@ -130,7 +130,7 @@ export default function Page() {
                 </div>
                 <div className="mx-auto flex w-full flex-col items-center justify-center p-4 sm:p-8 space-y-2">
                   <Avatar className="w-12 h-12">
-                    <AvatarImage src="/placeholder-user.jpg" alt="User Avatar" />
+                    {/* <AvatarImage src="/placeholder-user.jpg" alt="User Avatar" /> */}
                     <AvatarFallback>JD</AvatarFallback>
                   </Avatar>
                   <div className="text-lg font-medium">Jane Smith</div>
