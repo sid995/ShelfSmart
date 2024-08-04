@@ -15,13 +15,6 @@ const firebaseConfig = {
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-// const storage = getStorage(app);
+const storage = getStorage(app);
 
-const getUserIdToken = async () => {
-  if (auth?.currentUser) {
-    return await getIdToken(auth.currentUser);
-  }
-  return null;
-};
-
-export { app, auth, db, getUserIdToken };
+export { app, auth, db, storage };

@@ -1,6 +1,6 @@
 import { AddItemResult, InventoryItem, NewCreatedInventory } from "./definitions";
 import { db as clientDb } from "@/config/firebaseConfig";
-import { addDoc, collection, getDocs, limit, orderBy, query, startAfter, where } from "@firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, limit, orderBy, query, startAfter, updateDoc, where } from "@firebase/firestore";
 import { Timestamp } from "@firebase/firestore";
 
 
@@ -63,5 +63,37 @@ export async function createInventoryItem(userId: string, itemData: InventoryIte
   } catch (error) {
     console.error('Error adding inventory item:', error);
     return { success: false, error: error instanceof Error ? error : new Error('Unknown error occurred') };
+  }
+}
+
+export async function deleteInventoryItem(itemId: string): Promise<boolean> {
+  console.log("deleteInventoryItem: ", itemId)
+  try {
+    await deleteDoc(doc(clientDb, 'inventory', itemId));
+    return true;
+  } catch (error) {
+    console.error('Error deleting inventory item:', error);
+    return false;
+  }
+}
+
+export async function updateInventoryItem(itemId: string, updateData: Partial<NewCreatedInventory>): Promise<boolean> {
+  try {
+    await updateDoc(doc(clientDb, 'inventory', itemId), updateData);
+    return true;
+  } catch (error) {
+    console.error('Error updating inventory item:', error);
+    return false;
+  }
+}
+
+export async function getInventoryItem(itemId: string): Promise<NewCreatedInventory | null> {
+  const itemRef = doc(clientDb, 'inventory', itemId);
+  const itemSnap = await getDoc(itemRef);
+
+  if (itemSnap.exists()) {
+    return { id: itemSnap.id, ...itemSnap.data() } as NewCreatedInventory;
+  } else {
+    return null;
   }
 }

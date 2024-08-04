@@ -1,6 +1,6 @@
 'use client'
 
-import React from "react";
+import React, { useEffect } from "react";
 import { ArrowLeft, Upload } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -10,19 +10,39 @@ import { Input } from "../../ui/input";
 import { Label } from "../../ui/label";
 import { toast } from "../../ui/use-toast";
 import Image from "next/image"
-import { createInventoryItem } from "@/lib/firestoreApi";
-import { CurrentSessionType } from "@/lib/definitions";
+import { createInventoryItem, updateInventoryItem } from "@/lib/firestoreApi";
+import { CurrentSessionType, NewCreatedInventory } from "@/lib/definitions";
 import { Timestamp } from "firebase/firestore";
+import { uploadImage } from "@/lib/storage";
 
-const ItemForm = ({ session }: { session: CurrentSessionType }) => {
+interface ItemFormProps {
+  session?: CurrentSessionType;
+  initialData?: NewCreatedInventory;
+}
+
+const ItemForm = ({ session, initialData }: ItemFormProps) => {
   const router = useRouter();
 
-  const [name, setName] = useState('');
-  const [quantity, setQuantity] = useState('');
-  const [expiryDate, setExpiryDate] = useState('');
+  const [name, setName] = useState(initialData?.name || '');
+  const [quantity, setQuantity] = useState(initialData?.quantity.toString() || '');
+  const [expiryDate, setExpiryDate] = useState(initialData?.expiryDate ? new Date(initialData.expiryDate.seconds * 1000).toISOString().split('T')[0] : '');
   const [isLoading, setIsLoading] = useState(false);
   const [image, setImage] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(initialData?.imageSrc || null);
+
+  useEffect(() => {
+    if (initialData?.imageSrc) {
+      setImagePreview(initialData.imageSrc);
+    }
+
+    return () => {
+      setName('');
+      setQuantity('');
+      setExpiryDate('');
+      setImage(null);
+      setImagePreview(null);
+    };
+  }, [initialData]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -36,31 +56,43 @@ const ItemForm = ({ session }: { session: CurrentSessionType }) => {
     e.preventDefault();
     setIsLoading(true);
 
-    const result = await createInventoryItem(
-      session!.user.id,
-      {
-        name,
-        quantity: Number(quantity),
-        expiryDate: expiryDate ? Timestamp.fromDate(new Date(expiryDate)) : null,
-        imageSrc: ""
-      });
-    console.log(result)
-
-    if (result.success) {
-      toast({
-        title: "Success",
-        description: "Item added successfully",
-      });
-      router.push('/dashboard');
-    } else {
-      toast({
-        title: "Error",
-        description: result.error?.message || "Failed to add item. Please try again.",
-        variant: "destructive",
-      });
+    let imageSrc = initialData?.imageSrc || '';
+    if (image) {
+      imageSrc = await uploadImage(image);
     }
 
-    setIsLoading(false);
+    const itemData = {
+      name,
+      quantity: Number(quantity),
+      expiryDate: expiryDate ? Timestamp.fromDate(new Date(expiryDate)) : null,
+      imageSrc
+    };
+
+    try {
+      if (initialData) {
+        await updateInventoryItem(initialData.id!, itemData);
+        toast({
+          title: "Success",
+          description: "Item updated successfully",
+        });
+      } else {
+        await createInventoryItem(session!.user.id, itemData);
+        toast({
+          title: "Success",
+          description: "Item added successfully",
+        });
+      }
+      router.push('/dashboard');
+      router.refresh();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save item. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
 
@@ -72,7 +104,7 @@ const ItemForm = ({ session }: { session: CurrentSessionType }) => {
         </Link>
       </div>
       <h1 className="text-2xl font-bold mb-6">Add New Item</h1>
-      <div className="flex flex-row flex-auto">
+      <div className="flex flex-row flex-auto w-4/5">
         <form
           onSubmit={handleSubmit}
           className="space-y-4 max-w-md w-1/2 pr-1"
@@ -91,6 +123,7 @@ const ItemForm = ({ session }: { session: CurrentSessionType }) => {
             <Input
               id="quantity"
               type="number"
+              min={1}
               value={quantity}
               onChange={(e) => setQuantity(e.target.value)}
               required
@@ -101,15 +134,16 @@ const ItemForm = ({ session }: { session: CurrentSessionType }) => {
             <Input
               id="expiryDate"
               type="date"
+              min={new Date().toISOString().split('T')[0]}
               value={expiryDate}
               onChange={(e) => setExpiryDate(e.target.value)}
             />
           </div>
           <Button type="submit" disabled={isLoading}>
-            {isLoading ? 'Adding...' : 'Add Item'}
+            {isLoading ? 'Saving...' : (initialData ? 'Update Item' : 'Add Item')}
           </Button>
         </form>
-        <div className="flex flex-col flex-auto pl-2">
+        <div className="flex flex-col flex-auto pl-2 max-w-[300px]">
           <Label htmlFor="image">Item Image</Label>
           <div className="mt-2">
             <Input
@@ -129,14 +163,14 @@ const ItemForm = ({ session }: { session: CurrentSessionType }) => {
             </Button>
           </div>
           {imagePreview && (
-            <div className="mt-4">
+            <div className="mt-4 w-full object-contain">
               <Image
                 src={imagePreview}
                 alt="Preview"
                 width={200}
                 height={200}
-                objectFit="cover"
-                className="rounded-md"
+                objectFit="contain"
+                className="rounded-md mx-auto"
               />
             </div>
           )}
