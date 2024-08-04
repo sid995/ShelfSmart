@@ -6,20 +6,38 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { CurrentSessionType } from '@/lib/definitions';
 import { toast } from '@/components/ui/use-toast';
-import { saveRecipe } from '@/lib/firestoreApi';
+import { deleteRecipe, saveRecipe } from '@/lib/firestoreApi';
 import { Bookmark } from 'lucide-react';
 
-export default function RecipesPage({ session }: { session: CurrentSessionType }) {
-  let userId = null
+interface RecipeBlockProps {
+  session: CurrentSessionType;
+  initialRecipe?: RecipeType | null | undefined;
+}
+
+type RecipeType = {
+  id: string;
+  title: string;
+  description: string;
+};
+
+
+export default function RecipesPage({ session, initialRecipe = null }: RecipeBlockProps) {
+  let userId: any
   if (session!.user.id) userId = session!.user.id
 
-  const [inputText, setInputText] = useState('');
-  const [recipeData, setRecipeData] = useState<{ title: string; recipe: string } | null>(null);
+  const [inputText, setInputText] = useState(initialRecipe?.title || '');
+  const [recipeData, setRecipeData] = useState<{ id: string, title: string; recipe: string } | null>(initialRecipe ? ({
+    id: initialRecipe?.id || '',
+    title: initialRecipe?.title || '',
+    recipe: initialRecipe?.description || '',
+  }) : null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isSaved, setIsSaved] = useState(!!initialRecipe);
 
   const generateRecipe = async () => {
     setIsLoading(true);
+    setRecipeData(null)
     try {
       const response = await fetch('/api/generate-recipe', {
         method: 'POST',
@@ -27,7 +45,7 @@ export default function RecipesPage({ session }: { session: CurrentSessionType }
         body: JSON.stringify({ prompt: inputText })
       });
       const { title, recipe } = await response.json();
-      setRecipeData({ title, recipe });
+      setRecipeData({ id: "", title, recipe });
     } catch (error) {
       console.error('Error generating recipe:', error);
     }
@@ -38,15 +56,27 @@ export default function RecipesPage({ session }: { session: CurrentSessionType }
     if (!recipeData) return;
     setIsSaving(true);
     try {
-      await saveRecipe({
-        userId,
-        title: recipeData.title,
-        description: recipeData.recipe,
-      });
-      toast({
-        title: "Success",
-        description: "Recipe saved successfully!",
-      });
+      if (isSaved) {
+        // Delete the recipe if it's already saved
+        await deleteRecipe(recipeData.id!);
+        setIsSaved(false);
+        toast({
+          description: "Recipe removed from saved recipes.",
+        });
+      } else {
+        const savedRecipe: any = await saveRecipe({
+          userId,
+          title: recipeData.title,
+          description: recipeData.recipe,
+        });
+        if (savedRecipe) {
+          setRecipeData({ ...recipeData, id: savedRecipe.id });
+          setIsSaved(true);
+          toast({
+            description: "Recipe saved successfully!",
+          });
+        }
+      }
     } catch (error) {
       console.error('Error saving recipe:', error);
       toast({
@@ -93,7 +123,11 @@ export default function RecipesPage({ session }: { session: CurrentSessionType }
                 onClick={handleSaveRecipe}
                 disabled={isSaving}
               >
-                <Bookmark className={isSaving ? 'animate-pulse' : ''} />
+                {isSaved ? (
+                  <Bookmark className={`fill-current ${isSaving ? 'animate-pulse' : ''}`} />
+                ) : (
+                  <Bookmark className={isSaving ? 'animate-pulse' : ''} />
+                )}
               </Button>
             </CardHeader>
             <CardContent>

@@ -162,15 +162,65 @@ export async function getAnalyticsData() {
   };
 }
 
-export async function saveRecipe(recipeData: { userId: string | null; title: string; description: string }) {
+export async function saveRecipe(recipeData: { userId: string; title: string; description: string }) {
   try {
     const recipesRef = collection(clientDb, 'recipes');
-    await addDoc(recipesRef, {
+    const docRef = await addDoc(recipesRef, {
       ...recipeData,
       createdAt: new Date()
     });
+    return { id: docRef.id };
   } catch (error) {
     console.error('Error saving recipe:', error);
+    throw error;
+  }
+}
+
+export async function getLatestUserRecipes(userId: string, limitCount: number = 5) {
+  const recipesRef = collection(clientDb, 'recipes');
+  const q = query(
+    recipesRef,
+    where('userId', '==', userId),
+    orderBy('createdAt', 'desc'),
+    limit(limitCount)
+  );
+
+  const querySnapshot = await getDocs(q);
+  return querySnapshot.docs.map(doc => ({
+    id: doc.id,
+    title: doc.data().title,
+    description: doc.data().description,
+    // Add other fields as needed
+  }));
+}
+
+export async function getRecipeById(recipeId: string) {
+  try {
+    const recipeRef = doc(clientDb, 'recipes', recipeId);
+    const recipeSnap = await getDoc(recipeRef);
+
+    if (recipeSnap.exists()) {
+      const data = recipeSnap.data();
+      return {
+        id: recipeSnap.id,
+        title: data.title,
+        description: data.description
+      };
+    } else {
+      throw new Error('Recipe not found');
+    }
+  } catch (error) {
+    console.error('Error fetching recipe:', error);
+    throw error;
+  }
+}
+
+export async function deleteRecipe(recipeId: string) {
+  try {
+    const recipeRef = doc(clientDb, 'recipes', recipeId);
+    await deleteDoc(recipeRef);
+  } catch (error) {
+    console.error('Error deleting recipe:', error);
     throw error;
   }
 }
