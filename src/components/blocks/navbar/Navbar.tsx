@@ -4,9 +4,10 @@ import { BarChartIcon, BookIcon, LayoutGridIcon } from "lucide-react"
 import Link from "next/link"
 import { SignoutButton } from "../auth/SignoutButton"
 import { usePathname } from "next/navigation"
-import { useEffect, useState } from "react"
-import { getLatestUserRecipes } from "@/lib/firestoreApi"
+import { useEffect, useRef, useState } from "react"
 import { removePrefix } from "@/lib/utils"
+import { db as clientDb } from "@/config/firebaseConfig"
+import { collection, query, where, orderBy, limit, onSnapshot, Unsubscribe } from "firebase/firestore"
 
 const links = [
   {
@@ -33,15 +34,34 @@ interface NavbarProps {
 export const Navbar = ({ userId }: NavbarProps) => {
   const pathname = usePathname();
   const [latestRecipes, setLatestRecipes] = useState<Array<{ id: string; title: string }>>([]);
-  const [isRecipesOpen, setIsRecipesOpen] = useState(false);
+  const unsubscribeRef = useRef<Unsubscribe | null>(null);
 
   useEffect(() => {
-    const fetchRecipes = async () => {
-      const recipes = await getLatestUserRecipes(userId);
-      setLatestRecipes(recipes);
-    };
+    const recipesRef = collection(clientDb, 'recipes');
+    const recipesQuery = query(
+      recipesRef,
+      where('userId', '==', userId),
+      orderBy('createdAt', 'desc')
+    );
 
-    fetchRecipes();
+    unsubscribeRef.current = onSnapshot(recipesQuery, (snapshot) => {
+      const recipes = snapshot.docs.map(doc => ({
+        id: doc.id,
+        title: doc.data().title,
+      }));
+      setLatestRecipes(recipes);
+
+      // If we've reached 10 recipes, unsubscribe
+      if (recipes.length >= 10 && unsubscribeRef.current) {
+        unsubscribeRef.current();
+      }
+    });
+
+    return () => {
+      if (unsubscribeRef.current) {
+        unsubscribeRef.current();
+      }
+    };
   }, [userId]);
 
   return (
