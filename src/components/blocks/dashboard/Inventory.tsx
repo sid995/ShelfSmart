@@ -1,14 +1,12 @@
-// app/inventory/InventoryList.tsx
+import { CurrentSessionType, NewCreatedInventory } from "@/lib/definitions";
+import { getInventoryItems } from "@/lib/firestoreApi";
 
-'use client'
+export default async function InventoryList({ session, query, page }: { session: CurrentSessionType, query: string, page: number }) {
+  const userId = session!.user.id;
+  const items: NewCreatedInventory[] = await getInventoryItems(userId, query, page);
 
-import { NewCreatedInventory } from "@/lib/definitions";
+  console.log("Inventory items:", items);
 
-interface InventoryListProps {
-  items: NewCreatedInventory[];
-}
-
-export function InventoryList({ items }: InventoryListProps) {
   return (
     <div>
       <p className="text-gray-600 mb-4">Here are the items in your inventory:</p>
@@ -22,11 +20,11 @@ export function InventoryList({ items }: InventoryListProps) {
               </div>
               <div className="text-right">
                 <p className="text-sm text-gray-500">
-                  Created: {item?.creationDate ? item.creationDate.toLocaleDateString() : 'N/A'}
+                  Created: {item?.creationDate ? new Date(item.creationDate.seconds * 1000).toLocaleDateString() : 'N/A'}
                 </p>
-                {item.expiryDate && (
+                {item?.expiryDate && (
                   <p className="text-sm text-gray-500">
-                    Expires: {item.expiryDate.toLocaleDateString()}
+                    Expires: {new Date(item.expiryDate.seconds * 1000).toLocaleDateString()}
                   </p>
                 )}
               </div>

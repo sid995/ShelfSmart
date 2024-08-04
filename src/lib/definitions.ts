@@ -1,7 +1,12 @@
+export interface Timestamp {
+  seconds: number;
+}
+
 export interface InventoryItem {
   name: string;
   quantity: number;
-  expiryDate: Date | null;
+  expiryDate: Timestamp | null;
+  imageSrc: string | null;
 }
 
 export interface InventoryItemWithId extends InventoryItem {
@@ -9,7 +14,7 @@ export interface InventoryItemWithId extends InventoryItem {
 }
 
 export interface NewCreatedInventory extends InventoryItemWithId {
-  creationDate: Date | null;
+  creationDate: Timestamp | null;
   userId: string;
 }
 
@@ -19,3 +24,11 @@ export interface AddItemResult {
   success: boolean;
   error?: Error;
 }
+
+export type CurrentSessionType = {
+  user: {
+    id: string;
+    email?: string;
+    name: any;
+  };
+} | null;

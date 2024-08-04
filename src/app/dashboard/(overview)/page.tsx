@@ -1,10 +1,11 @@
-import { InventoryList } from "@/components/blocks/dashboard/Inventory";
+import InventoryList from "@/components/blocks/dashboard/Inventory";
 import Search from "@/components/blocks/dashboard/Search";
 import { Button } from "@/components/ui/button";
-import { NewCreatedInventory } from "@/lib/definitions";
-import { getInventoryItems } from "@/lib/firestoreApi";
+import { getServerSession } from "@/lib/auth/auth-server";
+import { CurrentSessionType, NewCreatedInventory } from "@/lib/definitions";
 import { Plus } from "lucide-react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
 export default async function Page({
@@ -15,13 +16,17 @@ export default async function Page({
     page?: string;
   }
 }) {
+  const currentSession: CurrentSessionType = await getServerSession();
+
+  if (!currentSession || !currentSession.user) {
+    redirect('/signin');
+  }
+
   const query = searchParams?.query || '';
   const currentPage = Number(searchParams?.page) || 1;
 
-  const inventoryItems: NewCreatedInventory[] = await getInventoryItems(query);
-
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense>
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold mb-4">Inventory</h1>
         <div className="flex w-1/2 mb-6">
@@ -32,7 +37,13 @@ export default async function Page({
             </Link>
           </Button>
         </div>
-        <InventoryList items={inventoryItems} />
+        <Suspense fallback={<div>Inventory loading</div>}>
+          <InventoryList
+            session={currentSession}
+            query={query}
+            page={currentPage}
+          />
+        </Suspense>
       </div>
     </Suspense>
   )

@@ -1,5 +1,3 @@
-// lib/auth.ts
-
 import { auth } from '@/config/firebaseConfig';
 import { signOut as firebaseSignOut } from 'firebase/auth';
 
@@ -19,3 +17,4 @@ export async function signOut(): Promise<void> {
     throw error;
   }
 }
+

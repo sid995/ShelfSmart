@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { toast } from "@/components/ui/use-toast";
-import { signOut } from "@/lib/auth";
+import { signOut } from "@/lib/auth/auth-client";
 import { useRouter } from 'next/navigation';
 
 export const SignoutButton = () => {

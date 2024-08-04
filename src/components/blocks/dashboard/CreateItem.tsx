@@ -10,9 +10,11 @@ import { Input } from "../../ui/input";
 import { Label } from "../../ui/label";
 import { toast } from "../../ui/use-toast";
 import Image from "next/image"
-// import { addInventoryItem } from "../../../lib/firestoreApi";
+import { createInventoryItem } from "@/lib/firestoreApi";
+import { CurrentSessionType } from "@/lib/definitions";
+import { Timestamp } from "firebase/firestore";
 
-const ItemForm = () => {
+const ItemForm = ({ session }: { session: CurrentSessionType }) => {
   const router = useRouter();
 
   const [name, setName] = useState('');
@@ -30,34 +32,36 @@ const ItemForm = () => {
     }
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
 
-  // const handleSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   setIsLoading(true);
+    const result = await createInventoryItem(
+      session!.user.id,
+      {
+        name,
+        quantity: Number(quantity),
+        expiryDate: expiryDate ? Timestamp.fromDate(new Date(expiryDate)) : null,
+        imageSrc: ""
+      });
+    console.log(result)
 
-  //   const result = await addInventoryItem({
-  //     name,
-  //     quantity: Number(quantity),
-  //     expiryDate: expiryDate ? new Date(expiryDate) : null,
-  //   });
-  //   console.log(result)
+    if (result.success) {
+      toast({
+        title: "Success",
+        description: "Item added successfully",
+      });
+      router.push('/dashboard');
+    } else {
+      toast({
+        title: "Error",
+        description: result.error?.message || "Failed to add item. Please try again.",
+        variant: "destructive",
+      });
+    }
 
-  //   if (result.success) {
-  //     toast({
-  //       title: "Success",
-  //       description: "Item added successfully",
-  //     });
-  //     router.push('/dashboard');
-  //   } else {
-  //     toast({
-  //       title: "Error",
-  //       description: result.error?.message || "Failed to add item. Please try again.",
-  //       variant: "destructive",
-  //     });
-  //   }
-
-  //   setIsLoading(false);
-  // };
+    setIsLoading(false);
+  };
 
 
   return (
@@ -69,7 +73,10 @@ const ItemForm = () => {
       </div>
       <h1 className="text-2xl font-bold mb-6">Add New Item</h1>
       <div className="flex flex-row flex-auto">
-        <form onSubmit={() => { }} className="space-y-4 max-w-md w-1/2 pr-1">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4 max-w-md w-1/2 pr-1"
+        >
           <div>
             <Label htmlFor="name">Item Name</Label>
             <Input

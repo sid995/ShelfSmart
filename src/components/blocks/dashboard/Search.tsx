@@ -24,6 +24,7 @@ export default function Search({ placeholder = "", className = "" }: { placehold
 
   return (
     <Input
+      type="text"
       defaultValue={searchParams.get('query')?.toString()}
       onChange={(e) => handleSearch(e.target.value)}
       placeholder={placeholder}
