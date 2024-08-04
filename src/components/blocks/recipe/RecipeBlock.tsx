@@ -30,6 +30,16 @@ export default function RecipesPage({ session, initialRecipe = null }: RecipeBlo
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [isSaved, setIsSaved] = useState<boolean>(!!initialRecipe);
+  const [inventoryItems, setInventoryItems] = useState<any[]>([]);
+
+  useEffect(() => {
+    Promise.resolve(async () => {
+      const inventory = await getInventoryItems(userId, '', 1);
+      if (inventory.length > 0) {
+        setInventoryItems(inventory)
+      }
+    })
+  }, [])
 
   useEffect(() => {
     if (initialRecipe) {
@@ -43,7 +53,7 @@ export default function RecipesPage({ session, initialRecipe = null }: RecipeBlo
     }
   }, [initialRecipe]);
 
-  const handleDefaultChangeWhenGenerating = useCallback(() => {
+  const handleDefaultChangeWhenGenerating = useCallback(async () => {
     setIsLoading(true);
     setRecipeData(null);
     setIsSaved(false);
@@ -106,8 +116,6 @@ export default function RecipesPage({ session, initialRecipe = null }: RecipeBlo
     handleDefaultChangeWhenGenerating()
 
     try {
-      // Fetch inventory items
-      const inventoryItems = await getInventoryItems(userId, '', 1);
       const itemNames = inventoryItems.map(item => item.name).join(', ');
       setInputText(itemNames);
 
@@ -138,6 +146,7 @@ export default function RecipesPage({ session, initialRecipe = null }: RecipeBlo
         generateRecipe={generateRecipe}
         isLoading={isLoading}
         generateRecipeFromInventory={generateRecipeFromInventory}
+        inventoryExists={inventoryItems.length > 0}
       />
       <section className="p-8 space-y-8">
         {recipeData && (

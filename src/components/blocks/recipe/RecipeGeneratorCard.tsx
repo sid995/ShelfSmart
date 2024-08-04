@@ -11,6 +11,7 @@ interface RecipeGeneratorCardProps {
   isLoading: boolean;
   generateRecipe: () => void;
   generateRecipeFromInventory: () => void;
+  inventoryExists: boolean;
 }
 
 export default function RecipeGeneratorCard({
@@ -18,7 +19,8 @@ export default function RecipeGeneratorCard({
   setInputText,
   isLoading,
   generateRecipe,
-  generateRecipeFromInventory
+  generateRecipeFromInventory,
+  inventoryExists = false
 }: RecipeGeneratorCardProps) {
   return (
     <div className="sticky block top-0 z-10 bg-white shadow-md w-full">
@@ -41,15 +43,17 @@ export default function RecipeGeneratorCard({
             >
               {isLoading ? 'Generating...' : 'Generate Recipe'}
             </Button>
-            <Button
-              variant="outline"
-              onClick={generateRecipeFromInventory}
-              disabled={isLoading}
-              className="mt-2 self-start w-full"
-            >
-              <ShoppingBag className="mr-2 h-4 w-4" />
-              {isLoading ? 'Generating...' : 'Generate From Inventory'}
-            </Button>
+            {inventoryExists ? (
+              <Button
+                variant="outline"
+                onClick={generateRecipeFromInventory}
+                disabled={isLoading}
+                className="mt-2 self-start w-full"
+              >
+                <ShoppingBag className="mr-2 h-4 w-4" />
+                {isLoading ? 'Generating...' : 'Generate From Inventory'}
+              </Button>
+            ) : null}
           </div>
         </CardContent>
       </Card>
