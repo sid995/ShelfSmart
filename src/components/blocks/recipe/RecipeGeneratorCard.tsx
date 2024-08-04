@@ -33,7 +33,7 @@ export default function RecipeGeneratorCard({
             placeholder="Describe the recipe you want to generate..."
             className="flex-1"
           />
-          <div className="flex flex-col items-center justify-between">
+          <div className="flex flex-col items-center">
             <Button
               onClick={generateRecipe}
               disabled={isLoading}
