@@ -20,8 +20,7 @@ const ListItem: React.FC<ItemProps> = ({ item }) => {
                   src={item.imageSrc}
                   alt={item.name}
                   layout="fill"
-                  objectFit="cover"
-                  className="rounded-md"
+                  className="rounded-md object-cover"
                 />
               ) : (
                 <Package className="w-8 h-8 text-gray-400" />

@@ -23,15 +23,18 @@ interface ItemFormProps {
 const ItemForm = ({ session, initialData }: ItemFormProps) => {
   const router = useRouter();
 
-  const [name, setName] = useState(initialData?.name || '');
-  const [quantity, setQuantity] = useState(initialData?.quantity.toString() || '');
-  const [expiryDate, setExpiryDate] = useState(initialData?.expiryDate ? new Date(initialData.expiryDate.seconds * 1000).toISOString().split('T')[0] : '');
+  const [name, setName] = useState('');
+  const [quantity, setQuantity] = useState('');
+  const [expiryDate, setExpiryDate] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(initialData?.imageSrc || null);
 
   useEffect(() => {
-    if (initialData?.imageSrc) {
+    if (initialData) {
+      setName(initialData.name);
+      setQuantity(initialData.quantity.toString());
+      setExpiryDate(initialData.expiryDate ? new Date(initialData.expiryDate.seconds * 1000).toISOString().split('T')[0] : '');
       setImagePreview(initialData.imageSrc);
     }
 
@@ -169,8 +172,7 @@ const ItemForm = ({ session, initialData }: ItemFormProps) => {
                 alt="Preview"
                 width={200}
                 height={200}
-                objectFit="contain"
-                className="rounded-md mx-auto"
+                className="rounded-md mx-auto object-fit"
               />
             </div>
           )}
