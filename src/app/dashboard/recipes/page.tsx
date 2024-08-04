@@ -2,7 +2,7 @@ import RecipeBlock from "@/components/blocks/recipe/RecipeBlock";
 import { getServerSession } from "@/lib/auth/auth-server";
 import { CurrentSessionType } from "@/lib/definitions";
 import { getRecipeById } from "@/lib/firestoreApi";
-import { redirect } from "next/navigation";
+import { removePrefix } from "@/lib/utils";
 import { Suspense } from "react";
 
 interface RecipePageProps {
@@ -15,12 +15,6 @@ type RecipeType = {
   description: string;
 };
 
-function removePrefix(title: string, prefix: string): string {
-  if (title.startsWith(prefix)) {
-    return title.slice(prefix.length);
-  }
-  return title
-}
 
 async function RecipeContent({ id, currentSession }: { id: string; currentSession: CurrentSessionType }) {
   try {
@@ -39,10 +33,6 @@ async function RecipeContent({ id, currentSession }: { id: string; currentSessio
 
 export default async function RecipePage({ searchParams }: RecipePageProps) {
   const currentSession: CurrentSessionType = await getServerSession();
-
-  if (!currentSession || !currentSession.user) {
-    redirect('/signin');
-  }
 
   const recipeId = searchParams?.id || "";
 

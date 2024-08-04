@@ -2,12 +2,12 @@
 
 import { useState } from 'react';
 import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { CurrentSessionType } from '@/lib/definitions';
 import { toast } from '@/components/ui/use-toast';
 import { deleteRecipe, saveRecipe } from '@/lib/firestoreApi';
 import { Bookmark } from 'lucide-react';
+import RecipeGeneratorCard from './RecipeGeneratorCard';
 
 interface RecipeBlockProps {
   session: CurrentSessionType;
@@ -90,29 +90,13 @@ export default function RecipesPage({ session, initialRecipe = null }: RecipeBlo
 
   return (
     <div className="flex-1 relative">
-      <div className="fixed w-full block top-0 left-[300px] ml-6 z-10 bg-white shadow-md" style={{ width: `calc(100vw - 360px)` }}>
-        <Card className="p-4">
-          <CardHeader>
-            <CardTitle>Recipe Generator</CardTitle>
-          </CardHeader>
-          <CardContent className="flex space-x-4">
-            <Textarea
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              placeholder="Describe the recipe you want to generate..."
-              className="flex-1"
-            />
-            <Button
-              onClick={generateRecipe}
-              disabled={isLoading}
-              className="self-start bg-green-600 text-white w-[165px]"
-            >
-              {isLoading ? 'Generating...' : 'Generate Recipe'}
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-      <section className="px-8 pb-8 pt-56 space-y-8">
+      <RecipeGeneratorCard
+        inputText={inputText}
+        setInputText={setInputText}
+        generateRecipe={generateRecipe}
+        isLoading={isLoading}
+      />
+      <section className="p-8 space-y-8">
         {recipeData && (
           <Card className="p-4">
             <CardHeader className="flex flex-row items-center justify-between">

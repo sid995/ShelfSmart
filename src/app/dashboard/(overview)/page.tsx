@@ -3,7 +3,6 @@ import InventoryList from "@/components/blocks/dashboard/Inventory";
 import Search from "@/components/blocks/dashboard/Search";
 import { getServerSession } from "@/lib/auth/auth-server";
 import { CurrentSessionType } from "@/lib/definitions";
-import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
 export default async function Page({
@@ -15,10 +14,6 @@ export default async function Page({
   }
 }) {
   const currentSession: CurrentSessionType = await getServerSession();
-
-  if (!currentSession || !currentSession.user) {
-    redirect('/signin');
-  }
 
   const query = searchParams?.query || '';
   const currentPage = Number(searchParams?.page) || 1;
