@@ -18,8 +18,6 @@ export const SigninBlock = () => {
       const provider = new GoogleAuthProvider()
       const result = await signInWithPopup(auth, provider)
 
-      console.log("signin result: ", result.user)
-
       // Get the ID token
       const idToken = await result.user.getIdToken()
 
@@ -33,24 +31,24 @@ export const SigninBlock = () => {
       })
 
       if (response.ok) {
-        const data = await response.json()
-        console.log('token:', data.decodedToken)
-        const { user } = data
-        console.log('User info:', user) // Log or use the user info as needed
-        toast({
-          title: `Welcome ${user.name.split[0]}`,
-          variant: "default",
-        })
         router.push('/dashboard')
+        if (result.user) {
+          const displayName = result.user.displayName ? result.user.displayName.split(' ')[0] : 'Anonymous';
+          toast({
+            title: `Welcome ${displayName}`,
+            variant: "default",
+            duration: 2000,
+          });
+        }
       } else {
         throw new Error('Failed to create session')
       }
     } catch (error) {
-      console.error('SignIn error:', error)
       toast({
         title: "Error",
         description: "Failed to sign in with Google",
         variant: "destructive",
+        duration: 2000,
       })
     } finally {
       setIsLoading(false)

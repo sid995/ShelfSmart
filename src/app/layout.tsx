@@ -5,6 +5,7 @@ import { DM_Sans } from 'next/font/google'
 import { Space_Mono } from 'next/font/google'
 import { cn } from '@/lib/utils'
 import './globals.css'
+import { Toaster } from "@/components/ui/toaster";
 
 const fontHeading = DM_Sans({
   subsets: ['latin'],
@@ -37,6 +38,7 @@ export default function RootLayout(
           fontBody.variable
         )}
       >
+        <Toaster />
         {children}
       </body>
     </html>
