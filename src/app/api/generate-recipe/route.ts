@@ -13,7 +13,7 @@ export async function POST(req: Request) {
       model: "gpt-3.5-turbo",
       messages: [
         { role: "system", content: "You are a helpful assistant that generates recipes with titles." },
-        { role: "user", content: `Generate a recipe based on the following request: ${prompt}. Provide the recipe title on the first line, followed by a blank line, and then the recipe details.` }
+        { role: "user", content: `Generate a recipe based on the following request: ${prompt}. Provide the recipe title on the first line, followed by a blank line, and then the recipe details. if there are any ** in title remove it` }
       ],
       max_tokens: 500,
     });

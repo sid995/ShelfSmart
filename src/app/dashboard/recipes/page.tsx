@@ -1,7 +1,7 @@
 import RecipeBlock from "@/components/blocks/recipe/RecipeBlock";
 import { getServerSession } from "@/lib/auth/auth-server";
-import { CurrentSessionType } from "@/lib/definitions";
-import { getRecipeById } from "@/lib/firestoreApi";
+import { CurrentSessionType, NewCreatedInventory } from "@/lib/definitions";
+import { getInventoryItems, getRecipeById } from "@/lib/firestoreApi";
 import { removePrefix } from "@/lib/utils";
 import { Suspense } from "react";
 
@@ -15,18 +15,34 @@ type RecipeType = {
   description: string;
 };
 
-async function RecipeContent({ id, currentSession }: { id: string; currentSession: CurrentSessionType }) {
+async function RecipeContent({
+  id,
+  userId,
+  inventory
+}: {
+  id: string;
+  userId: string | undefined,
+  inventory: NewCreatedInventory[]
+}) {
   try {
     let recipe: RecipeType = await getRecipeById(id);
     recipe = {
       ...recipe,
       title: removePrefix(recipe.title, "Title: "),
-    } as RecipeType;
+    };
 
-    return <RecipeBlock session={currentSession} initialRecipe={recipe} key={id} />;
+    return <RecipeBlock
+      inventory={inventory}
+      userId={userId}
+      initialRecipe={recipe}
+      key={id}
+    />;
   } catch (error) {
     console.error('Error fetching recipe:', error);
-    return <RecipeBlock session={currentSession} />;
+    return <RecipeBlock
+      inventory={inventory}
+      userId={userId}
+    />;
   }
 }
 
@@ -35,12 +51,21 @@ export default async function RecipePage({ searchParams }: RecipePageProps) {
 
   const recipeId = searchParams?.id || "";
 
+  const inventory = await getInventoryItems(currentSession!.user.id);
+
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<div></div>}>
       {recipeId ? (
-        <RecipeContent id={recipeId} currentSession={currentSession} />
+        <RecipeContent
+          id={recipeId}
+          userId={currentSession?.user.id}
+          inventory={inventory}
+        />
       ) : (
-        <RecipeBlock session={currentSession} />
+        <RecipeBlock
+          userId={currentSession?.user.id}
+          inventory={inventory}
+        />
       )}
     </Suspense>
   )

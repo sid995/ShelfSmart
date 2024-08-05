@@ -27,7 +27,7 @@ const ITEMS_PER_PAGE = 10;
 
 export async function getInventoryItems(
   userId: string,
-  searchQuery: string,
+  searchQuery: string = "",
   page: number = 1
 ): Promise<NewCreatedInventory[]> {
   console.log("searchQuery", searchQuery)

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { CurrentSessionType } from '@/lib/definitions';
+import { CurrentSessionType, NewCreatedInventory } from '@/lib/definitions';
 import { toast } from '@/components/ui/use-toast';
 import { deleteRecipe, saveRecipe, getInventoryItems } from '@/lib/firestoreApi';
 import { Bookmark } from 'lucide-react';
@@ -11,8 +11,9 @@ import RecipeGeneratorCard from './RecipeGeneratorCard';
 import { removePrefix } from '@/lib/utils';
 
 interface RecipeBlockProps {
-  session: CurrentSessionType;
+  userId: string | undefined;
   initialRecipe?: RecipeType | null | undefined;
+  inventory: NewCreatedInventory[];
 }
 
 type RecipeType = {
@@ -21,25 +22,17 @@ type RecipeType = {
   description: string;
 };
 
-export default function RecipesPage({ session, initialRecipe = null }: RecipeBlockProps) {
-  let userId: any
-  if (session!.user.id) userId = session!.user.id
+export default function RecipesPage({
+  userId,
+  initialRecipe = null,
+  inventory = []
+}: RecipeBlockProps) {
 
   const [inputText, setInputText] = useState<string>('');
   const [recipeData, setRecipeData] = useState<RecipeType | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [isSaved, setIsSaved] = useState<boolean>(!!initialRecipe);
-  const [inventoryItems, setInventoryItems] = useState<any[]>([]);
-
-  useEffect(() => {
-    Promise.resolve(async () => {
-      const inventory = await getInventoryItems(userId, '', 1);
-      if (inventory.length > 0) {
-        setInventoryItems(inventory)
-      }
-    })
-  }, [])
 
   useEffect(() => {
     if (initialRecipe) {
@@ -81,7 +74,6 @@ export default function RecipesPage({ session, initialRecipe = null }: RecipeBlo
     setIsSaving(true);
     try {
       if (isSaved) {
-        // Delete the recipe if it's already saved
         await deleteRecipe(recipeData.id!);
         setIsSaved(false);
         toast({
@@ -116,7 +108,7 @@ export default function RecipesPage({ session, initialRecipe = null }: RecipeBlo
     handleDefaultChangeWhenGenerating()
 
     try {
-      const itemNames = inventoryItems.map(item => item.name).join(', ');
+      const itemNames = inventory.map(item => item.name).join(', ');
       setInputText(itemNames);
 
       // Generate recipe using inventory items
@@ -146,7 +138,7 @@ export default function RecipesPage({ session, initialRecipe = null }: RecipeBlo
         generateRecipe={generateRecipe}
         isLoading={isLoading}
         generateRecipeFromInventory={generateRecipeFromInventory}
-        inventoryExists={inventoryItems.length > 0}
+        inventoryExists={inventory.length > 0}
       />
       <section className="p-8 space-y-8">
         {recipeData && (

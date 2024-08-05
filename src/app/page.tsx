@@ -39,6 +39,7 @@ export default function Page() {
                 </div>
               </div>
               <Image
+                loading="eager"
                 src="/grocery_background_still.jpg"
                 width="550"
                 height="550"
